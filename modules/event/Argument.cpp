@@ -1,6 +1,3 @@
-#include  <sstream>
-#include  <string>
-
 #include    "Argument.h"
 
 namespace rv_xjtu_yangyan {

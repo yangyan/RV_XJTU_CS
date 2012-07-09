@@ -1,8 +1,3 @@
-#include  <vector>
-#include  <sstream>
-#include  <iostream>
-
-#include    "Argument.h"
 #include    "ArgumentList.h"
 
 namespace rv_xjtu_yangyan {
