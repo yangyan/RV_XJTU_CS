@@ -22,6 +22,9 @@ namespace rv_xjtu_yangyan {
            //下标操作
            const Argument& operator[](const size_t index) const;
 
+           //复制本类
+           void clone(const ArgumentList &argList);
+
            //增加一个参数
            template <typename T>
                void append(const T arg)

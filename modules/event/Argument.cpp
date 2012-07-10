@@ -7,21 +7,21 @@ namespace rv_xjtu_yangyan {
     */
    Argument::Argument(std::string arg)
    {
-       argumentString = std::string(arg);
+       _argumentString = std::string(arg);
    }
 
    Argument::Argument(int arg)
    {
        std::stringstream ss;
        ss << arg;
-       argumentString = ss.str();
+       _argumentString = ss.str();
    }
 
    Argument::Argument(double arg)
    {
        std::stringstream ss;
        ss << arg;
-       argumentString = ss.str();
+       _argumentString = ss.str();
    }
 
    /*
@@ -29,7 +29,7 @@ namespace rv_xjtu_yangyan {
     */
    const std::string& Argument::toString() const
    {
-       return argumentString;
+       return _argumentString;
    }
 
 }

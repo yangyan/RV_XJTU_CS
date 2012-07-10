@@ -27,6 +27,9 @@ namespace rv_xjtu_yangyan {
            
            void setCurrentPID();
            void setCurrentProcessName(std::string path);
+           void setFunctionName(std::string funcName);
+           void setFunctionArgs(ArgumentList &funcArgs);
+           void clone(Event &event);
 
    };
 

@@ -36,4 +36,15 @@ namespace rv_xjtu_yangyan {
        return *(argumentList[index]);
    }
 
+   /*
+    *复制类
+    */
+   void ArgumentList::clone(const ArgumentList &argList)
+   {
+       for(std::vector<Argument *>::const_iterator iter = argList.argumentList.begin();
+               iter != argList.argumentList.end(); ++iter)
+       {
+           this->append((*iter)->toString());
+       }
+   }
 }

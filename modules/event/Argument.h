@@ -20,7 +20,7 @@ namespace rv_xjtu_yangyan {
        private:
            //使用string表达参数，所有类型的参数，使用string来表示
            //转化的方法，根据LTL公式中参数的表达方式而定
-           std::string argumentString;
+           std::string _argumentString;
 
    };
 
