@@ -1,26 +1,19 @@
-using namespace rv_xjtu_yangyan;
+#include    "Event.h"
 
 namespace rv_xjtu_yangyan {
-   
-   class Event
-   {
-       /*
-        *data from monitored process
-        */
-       public:
-           unsigned int processId;
-           string       functionName;
-           ArgumentList functionArgs;
-       /*
-        *functions of class Event 
-        */
-       public:
-           Event(){
-           }
 
-           ~Event(){
-           }
+    void Event::setCurrentPID()
+    {
+        processId = getpid();
+    }
 
-   }
+    void Event::setCurrentProcessName(std::string path)
+    {
+        std::string thisName = std::string(path);
+        size_t pos = thisName.rfind('/');
+        processName = thisName.substr(pos+1, thisName.length() - pos);
+    }
+
+
 
 }
