@@ -2,6 +2,15 @@
 
 namespace rv_xjtu_yangyan {
 
+    Event::Event()
+    {
+    }
+
+    Event::Event(const Event &event)
+    {
+        this->clone(event);
+    }
+
     void Event::setCurrentPID()
     {
         processId = getpid();
@@ -30,7 +39,7 @@ namespace rv_xjtu_yangyan {
        functionArgs.clone(funcArgs);
     } 
 
-    void Event::clone(Event &event)
+    void Event::clone(const Event &event)
     {
         this->processId = event.processId;
         this->processName = event.processName;

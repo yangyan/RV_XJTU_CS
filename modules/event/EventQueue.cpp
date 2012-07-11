@@ -1,33 +1,26 @@
-using namespace rv_xjtu_yangyan;
+#include    "EventQueue.h"
 
 namespace rv_xjtu_yangyan 
 {
-   
-   class EventQueue
-   {
-       public:
-           queue<Event *> eventQueue;
+    EventQueue::~EventQueue()
+    {
+        while(!eventQueue.empty()){
+            delete eventQueue.front();
+            eventQueue.pop();
+        }
+    }
 
-       public:
-           EventQueue()
-           {
+    void EventQueue::push(const Event &eventItem)
+    {
+        Event *newEvent = new Event(eventItem);
+        eventQueue.push(newEvent);
+    }
 
-           }
-
-           ~EventQueue()
-           {
-
-           }
-
-           void insert(Event *e)
-           {
-
-           }
-
-           Event* pop()
-           {
-
-           }
-   }
+    Event& EventQueue::pop()
+    {
+        Event *event = eventQueue.front();
+        eventQueue.pop();
+        return *event;
+    }
 
 }

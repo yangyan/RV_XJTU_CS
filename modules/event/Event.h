@@ -19,17 +19,14 @@ namespace rv_xjtu_yangyan {
            ArgumentList functionArgs;
 
        public:
-/*
- *           Event();
- *
- *           ~Event();
- */
            
+           Event();
+           Event(const Event &event);
            void setCurrentPID();
            void setCurrentProcessName(std::string path);
            void setFunctionName(std::string funcName);
            void setFunctionArgs(ArgumentList &funcArgs);
-           void clone(Event &event);
+           void clone(const Event &event);
 
    };
 
