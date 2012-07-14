@@ -24,7 +24,7 @@ namespace rv_xjtu_yangyan {
        for(std::vector<Argument *>::const_iterator iter = argumentList.begin();
                iter != argumentList.end(); ++iter)
        {
-           std::cout <<  (*iter)->toString() << " ";
+           ss <<  (*iter)->toString() << " ";
        }
        return ss.str();
    }

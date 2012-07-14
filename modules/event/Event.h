@@ -1,3 +1,6 @@
+#ifndef EVENT_CLASS
+#define EVENT_CLASS
+
 #include  <string>
 #include  <iostream>
 
@@ -31,3 +34,5 @@ namespace rv_xjtu_yangyan {
    };
 
 }
+
+#endif
