@@ -1,7 +1,10 @@
+#ifndef EVENTQUEUE_CLASS
+#define EVENTQUEUE_CLASS
+
 #include  <queue>
 #include  <algorithm>
 
-#include    "Event.h"
+#include    "Event.hpp"
 
 namespace rv_xjtu_yangyan 
 {
@@ -29,3 +32,30 @@ namespace rv_xjtu_yangyan
    };
 
 }
+
+namespace rv_xjtu_yangyan 
+{
+    EventQueue::~EventQueue()
+    {
+        while(!eventQueue.empty()){
+            delete eventQueue.front();
+            eventQueue.pop();
+        }
+    }
+
+    void EventQueue::push(const Event &eventItem)
+    {
+        Event *newEvent = new Event(eventItem);
+        eventQueue.push(newEvent);
+    }
+
+    Event& EventQueue::pop()
+    {
+        Event *event = eventQueue.front();
+        eventQueue.pop();
+        return *event;
+    }
+
+}
+
+#endif

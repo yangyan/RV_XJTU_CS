@@ -1,4 +1,39 @@
-#include    "Event.h"
+#ifndef EVENT_CLASS
+#define EVENT_CLASS
+
+#include  <string>
+#include  <iostream>
+
+#include  <unistd.h>
+
+#include    "ArgumentList.hpp"
+
+namespace rv_xjtu_yangyan {
+   
+   class Event
+   {
+       /*
+        *从进程中获取的程序的信息
+        */
+       public:
+           size_t       processId;
+           std::string  processName;
+           std::string  functionName;
+           ArgumentList functionArgs;
+
+       public:
+           
+           Event();
+           Event(const Event &event);
+           void setCurrentPID();
+           void setCurrentProcessName(std::string path);
+           void setFunctionName(std::string funcName);
+           void setFunctionArgs(ArgumentList &funcArgs);
+           void clone(const Event &event);
+
+   };
+
+}
 
 namespace rv_xjtu_yangyan {
 
@@ -47,3 +82,4 @@ namespace rv_xjtu_yangyan {
         this->functionArgs.clone(event.functionArgs);
     } 
 }
+#endif

@@ -1,4 +1,29 @@
-#include    "EventPath.h"
+#ifndef EVENTPATH_CLASS
+#define EVENTPATH_CLASS
+
+#include  <list>
+#include  <algorithm>
+#include  <string>
+#include  <functional>
+
+#include  "Event.hpp"
+
+namespace rv_xjtu_yangyan {
+   
+   class EventPath
+   {
+       public:
+           std::vector<Event *> eventPath;
+
+       public:
+           ~EventPath();
+           void push(const Event &eventItem);
+           //void match(const EventPathGraph &epg);
+           const std::string toString() const;
+           void hello();
+   };
+
+}
 
 namespace rv_xjtu_yangyan {
 
@@ -35,3 +60,5 @@ namespace rv_xjtu_yangyan {
     }
 
 }
+
+#endif
