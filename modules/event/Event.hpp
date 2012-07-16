@@ -4,6 +4,9 @@
 #include  <string>
 #include  <iostream>
 
+#include  <boost/serialization/access.hpp>
+#include  <boost/serialization/string.hpp>
+
 #include  <unistd.h>
 
 #include    "ArgumentList.hpp"
@@ -12,6 +15,18 @@ namespace rv_xjtu_yangyan {
    
    class Event
    {
+       private:
+           //串行化
+           friend class boost::serialization::access;
+           template<class Archive>
+               void serialize(Archive &ar, const unsigned int version)
+               {
+                   ar & processId;
+                   ar & processName;
+                   ar & functionName;
+                   ar & functionArgs;
+               }
+
        /*
         *从进程中获取的程序的信息
         */

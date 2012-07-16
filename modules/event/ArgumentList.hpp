@@ -4,14 +4,25 @@
 #include  <vector>
 #include  <sstream>
 #include  <iostream>
+
+#include  <boost/serialization/access.hpp>
+#include  <boost/serialization/vector.hpp>
+
 #include    "Argument.hpp"
 
 namespace rv_xjtu_yangyan {
    
    class ArgumentList
    {
-       public:
-           std::vector<Argument *> argumentList;
+       private:
+           //串行化
+           friend class boost::serialization::access;
+           template<class Archive>
+               void serialize(Archive &ar, const unsigned int version)
+               {
+                   ar & argumentList;
+               }
+
 
        public:
            ArgumentList();
@@ -32,6 +43,8 @@ namespace rv_xjtu_yangyan {
                    Argument *argument = new Argument(arg);
                    argumentList.push_back(argument);
                }
+       public:
+           std::vector<Argument *> argumentList;
    };
 
 }

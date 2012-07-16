@@ -7,6 +7,8 @@
 #include  <functional>
 
 #include  <boost/functional/hash.hpp>
+#include  <boost/serialization/access.hpp>
+#include  <boost/serialization/vector.hpp>
 
 #include  "Event.hpp"
 
@@ -14,9 +16,15 @@ namespace rv_xjtu_yangyan {
    
    class EventPath
    {
-       public:
-           std::vector<Event *> eventPath;
-           std::size_t          hashValue;
+       private:
+           //串行化
+           friend class boost::serialization::access;
+           template<class Archive>
+               void serialize(Archive &ar, const unsigned int version)
+               {
+                   ar & eventPath;
+                   ar & hashValue;
+               }
 
        public:
            EventPath();
@@ -24,7 +32,10 @@ namespace rv_xjtu_yangyan {
            void push(const Event &eventItem);
            //void match(const EventPathGraph &epg);
            const std::string toString() const;
-           void hello();
+
+       public:
+           std::vector<Event *> eventPath;
+           std::size_t          hashValue;
    };
 
 }
