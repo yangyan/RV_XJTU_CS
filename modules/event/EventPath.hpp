@@ -29,9 +29,10 @@ namespace rv_xjtu_yangyan {
        public:
            EventPath();
            ~EventPath();
-           void push(const Event &eventItem);
+           void append(const Event &eventItem);
            //void match(const EventPathGraph &epg);
            const std::string toString() const;
+           void clone(EventPath &eventpath);
 
        public:
            std::vector<Event *> eventPath;
@@ -58,7 +59,7 @@ namespace rv_xjtu_yangyan {
         delete eventItem;
     }
 
-    void EventPath::push(const Event &eventItem)
+    void EventPath::append(const Event &eventItem)
     {
         Event *newEvent = new Event(eventItem);
         eventPath.push_back(newEvent);
@@ -78,6 +79,19 @@ namespace rv_xjtu_yangyan {
         }
         ss << (*iter)->functionName;
         return ss.str();
+    }
+
+    void EventPath::clone(EventPath &eventpath)
+    {
+        std::vector<Event *>::const_iterator iter;
+        for(iter = eventpath.eventPath.begin();
+                iter != eventpath.eventPath.end(); ++iter)
+        {
+            Event *ep = new Event();
+            ep->clone(*(*iter));
+            eventPath.push_back(ep);
+        }
+        hashValue = eventpath.hashValue;
     }
 
 }
