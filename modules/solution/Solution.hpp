@@ -19,7 +19,7 @@ namespace rv_xjtu_yangyan{
 
 namespace rv_xjtu_yangyan{
 
-    Solution::Solution:type(NOT_GIVEN)
+    Solution::Solution():type(NOT_GIVEN)
     {
     }
 
