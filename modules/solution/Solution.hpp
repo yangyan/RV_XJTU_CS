@@ -1,9 +1,19 @@
 #ifndef SOLUTION_CLASS
 #define SOLUTION_CLASS
 
+#include  <boost/serialization/access.hpp>
+
 namespace rv_xjtu_yangyan{
     class Solution 
     {
+       private:
+           //串行化
+           friend class boost::serialization::access;
+           template<class Archive>
+               void serialize(Archive &ar, const unsigned int version)
+               {
+               }
+
         public:
             enum
             {
