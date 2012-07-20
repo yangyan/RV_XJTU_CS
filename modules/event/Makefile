@@ -1,5 +1,5 @@
 INCLUDE = -I /home/yangyan/boost_1_50_0/
-LIBS	= -lboost_serialization
+LIBS	= -lboost_serialization -lboost_system
 CC	= g++
 
 SOURCE	= test.cpp 

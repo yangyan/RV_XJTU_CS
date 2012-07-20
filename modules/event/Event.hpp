@@ -10,6 +10,7 @@
 #include  <unistd.h>
 
 #include    "ArgumentList.hpp"
+#include    "EventTime.hpp"
 
 namespace rv_xjtu_yangyan {
    
@@ -27,14 +28,6 @@ namespace rv_xjtu_yangyan {
                    ar & functionArgs;
                }
 
-       /*
-        *从进程中获取的程序的信息
-        */
-       public:
-           size_t       processId;
-           std::string  processName;
-           std::string  functionName;
-           ArgumentList functionArgs;
 
        public:
            
@@ -45,7 +38,18 @@ namespace rv_xjtu_yangyan {
            void setFunctionName(std::string funcName);
            void setFunctionArgs(ArgumentList &funcArgs);
            void clone(const Event &event);
+           long long timeSince(const Event &event);
 
+       /*
+        *从进程中获取的程序的信息
+        */
+       public:
+           size_t       processId;
+           std::string  processName;
+           std::string  functionName;
+           ArgumentList functionArgs;
+           EventTime    birthTime;
+           
    };
 
 }
@@ -54,6 +58,7 @@ namespace rv_xjtu_yangyan {
 
     Event::Event()
     {
+        EventTime birthTime = EventTime();
     }
 
     Event::Event(const Event &event)
@@ -96,5 +101,10 @@ namespace rv_xjtu_yangyan {
         this->functionName = event.functionName;
         this->functionArgs.clone(event.functionArgs);
     } 
+
+    long long Event::timeSince(const Event &event)
+    {
+        return this->birthTime.timeSince(event.birthTime);
+    }
 }
 #endif

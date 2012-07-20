@@ -6,6 +6,7 @@
 #include  <fstream>
 #include  <iostream>
 #include  <sstream>
+#include  <stdexcept>
 
 #include  <boost/serialization/access.hpp>
 #include  <boost/serialization/map.hpp>
@@ -60,11 +61,6 @@ namespace rv_xjtu_yangyan {
                    ar & eventPaths;
                }
 
-
-        public:
-            //map中，first为事件路径，second为解决方案
-            std::map<EventPath *, Solution *, PathComparer> eventPaths;
-
         public:
             EventPathHistory();
             ~EventPathHistory();
@@ -72,9 +68,18 @@ namespace rv_xjtu_yangyan {
             void append(EventPath &ep, Solution &s);
             std::size_t size();
             Solution& getSolution(EventPath &ep);
+            void setStoreFile(const char *file);
             void storeToFile(const std::string file);
             void readFromFile(const std::string file);
+            void storeToFile();
+            void readFromFile();
             std::string toString();
+
+        public:
+            //map中，first为事件路径，second为解决方案
+            std::map<EventPath *, Solution *, PathComparer> eventPaths;
+        private:
+            std::string filename_;
     };
 }
 
@@ -82,6 +87,7 @@ namespace rv_xjtu_yangyan {
 
     EventPathHistory::EventPathHistory()
     {
+        filename_ = std::string();
     }
 
     EventPathHistory::~EventPathHistory()
@@ -115,11 +121,30 @@ namespace rv_xjtu_yangyan {
         return *newSolution;
     }
 
+    void EventPathHistory::setStoreFile(const char *file)
+    {
+        filename_ = std::string(file);
+    }
+
+    void EventPathHistory::storeToFile()
+    {
+        if( filename_.empty())
+           throw std::runtime_error("No history file set.");
+        storeToFile(filename_);
+    }
+
     void EventPathHistory::storeToFile(std::string file)
     {
         std::ofstream ofs(file.c_str(), std::ios::trunc);
         boost::archive::text_oarchive oa(ofs);
         oa << *this;
+    }
+
+    void EventPathHistory::readFromFile()
+    {
+        if( filename_.empty())
+           throw std::runtime_error("No history file set.");
+        readFromFile(filename_);
     }
 
     void EventPathHistory::readFromFile(const std::string file)
