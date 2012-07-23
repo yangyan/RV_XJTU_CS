@@ -46,10 +46,22 @@ namespace rv_xjtu_yangyan
                 return us.count();
             }
 
+            void clone(const EventTime &_et)
+            {
+                this->time = _et.time;
+            }
+
+
         public:
             //事件产生的绝对时间,纳秒
             long long time;
     };
+
+    //比较操作
+    bool operator<(const EventTime &lhs, const EventTime &rhs)
+    {
+        return (lhs.time < rhs.time)?true:false;
+    }
 
 }
 #endif

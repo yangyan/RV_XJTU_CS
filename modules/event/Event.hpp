@@ -100,6 +100,7 @@ namespace rv_xjtu_yangyan {
         this->processName = event.processName;
         this->functionName = event.functionName;
         this->functionArgs.clone(event.functionArgs);
+        this->birthTime.clone(event.birthTime);
     } 
 
     long long Event::timeSince(const Event &event)

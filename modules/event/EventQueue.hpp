@@ -4,6 +4,8 @@
 #include  <queue>
 #include  <algorithm>
 
+#include  <boost/thread/mutex.hpp>
+
 #include    "Event.hpp"
 
 namespace rv_xjtu_yangyan 
@@ -29,6 +31,11 @@ namespace rv_xjtu_yangyan
 
            Event& pop();
 
+           bool empty();
+       private:
+           boost::mutex mtx_;
+
+
    };
 
 }
@@ -45,15 +52,26 @@ namespace rv_xjtu_yangyan
 
     void EventQueue::push(const Event &eventItem)
     {
+        //位于多线程环境下
+        boost::mutex::scoped_lock lock(mtx_);
+
         Event *newEvent = new Event(eventItem);
         eventQueue.push(newEvent);
     }
 
     Event& EventQueue::pop()
     {
+        //位于多线程环境下
+        boost::mutex::scoped_lock lock(mtx_);
+
         Event *event = eventQueue.front();
         eventQueue.pop();
         return *event;
+    }
+
+    bool EventQueue::empty()
+    {
+        return eventQueue.empty();
     }
 
 }
