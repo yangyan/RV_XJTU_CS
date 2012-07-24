@@ -39,6 +39,7 @@ namespace rv_xjtu_yangyan {
            void setFunctionArgs(ArgumentList &funcArgs);
            void clone(const Event &event);
            long long timeSince(const Event &event);
+           const std::string toString() const;
 
        /*
         *从进程中获取的程序的信息
@@ -106,6 +107,16 @@ namespace rv_xjtu_yangyan {
     long long Event::timeSince(const Event &event)
     {
         return this->birthTime.timeSince(event.birthTime);
+    }
+
+    const std::string Event::toString() const
+    {
+        std::stringstream ss; 
+        ss << "processId:" << processId << std::endl;
+        ss << "processName:" << processName << std::endl;
+        ss << "functionName:" << functionName << std::endl;
+        ss << "birthTime:" << birthTime.time << std::endl;
+        return ss.str();
     }
 }
 #endif

@@ -7,6 +7,8 @@
 #include  <boost/thread/condition_variable.hpp>
 #include  <boost/chrono.hpp>
 
+#include    "../basic/semaphore.hpp"
+
 namespace rv_xjtu_yangyan
 {
     class EventManager 
@@ -15,10 +17,8 @@ namespace rv_xjtu_yangyan
             struct EventComparer{
                 bool operator()(Event *first, Event *second) const
                 {
-                    std::cout << first->birthTime.time << std::endl;
-                    std::cout << second->birthTime.time << std::endl;
-                    return ((first->birthTime < second->birthTime)&&
-                            (first->processId == second->processId))?
+                    return ((first->birthTime < second->birthTime)||
+                            (first->processId < second->processId))?
                         true:false;
                 }
             };
@@ -34,14 +34,14 @@ namespace rv_xjtu_yangyan
             EventPathHistory *eventHistory_;
             EventQueue *eventQueue_;
             std::set<Event *, EventComparer> processedEvents_;
-            boost::mutex mutexEventSet_;
-            boost::condition_variable cvEventSet_;
-            boost::mutex mutexNewEvent_;
-            boost::condition_variable cvNewEvent_;
-            boost::mutex mutexStop_;
-            boost::condition_variable cvStop_;
+
+            boost::mutex mutexProcessed_;
+            semaphore semNewEvents_;
+            semaphore semProcessedEvents_;
+            semaphore semStop_;
             boost::thread *pRunThread_;
             bool stop_;
+            bool running_;
         public:
             EventManager();
             //以历史文件为参数的初始化
@@ -70,38 +70,39 @@ namespace rv_xjtu_yangyan
     //主要执行过程
     void EventManager::run_()
     {
-        boost::mutex::scoped_lock lock(mutexNewEvent_);
         //当收到停止信号，并且所有事件都被处理完毕，就可以结束了
         while(!(stop_ == true && (*eventQueue_).empty()))
         {
-            cvNewEvent_.wait(lock);
-            //对所有队列中的事件进行处理
+            semNewEvents_.wait();
             if((*eventQueue_).empty())
             {
-                std::cout << "队列空了" << std::endl;
+                //可以结束了
                 continue;
             }
+            //对所有队列中的事件进行处理
+            //.........
+            //.........
+            //.........
+            //.........
+            //.........
             storeAndNotifyProcessed_((*eventQueue_).pop());
-            std::cout << "this is one event" << std::endl;
+            std::cout << "^_^" << std::endl;
         }
-        cvStop_.notify_one();
+        semStop_.notify();
     }
 
     //保证这个函数是在程序最后运行
     void EventManager::safeStop()
     {
-        boost::mutex::scoped_lock lock(mutexStop_);
         stop_ = true;
-        cvNewEvent_.notify_one();
-        cvStop_.wait(lock);
+        semNewEvents_.notify();
+        semStop_.wait();
     }
 
     EventManager::EventManager():running_(false),stop_(false)
     {
         eventHistory_ = new EventPathHistory();
         eventQueue_ = new EventQueue();
-        //run_还没有运行就绪
-        mutexRunReady_.lock();
     }
 
     EventManager::EventManager(const char *_file):running_(false),stop_(false)
@@ -109,8 +110,6 @@ namespace rv_xjtu_yangyan
         eventHistory_ = new EventPathHistory();
         (*eventHistory_).setStoreFile(_file);
         eventQueue_ = new EventQueue();
-        //run_还没有运行就绪
-        mutexRunReady_.lock();
     }
 
     EventManager::~EventManager()
@@ -130,7 +129,7 @@ namespace rv_xjtu_yangyan
         //将事件放入事件队列中
         (*eventQueue_).push(_event);
         //通知处理程序处理
-        cvNewEvent_.notify_one();
+        semNewEvents_.notify();
         //等待事件被处理
         waitProcessed_(_event);
     }
@@ -139,23 +138,41 @@ namespace rv_xjtu_yangyan
     //如果找不到，那么就继续阻塞
     void EventManager::waitProcessed_(Event &_e)
     {
-        boost::mutex::scoped_lock lock(mutexEventSet_);
-        while(processedEvents_.count(&_e) == 0)
+        while(true)
         {
-            cvEventSet_.wait(lock);
+            size_t count;
+            semProcessedEvents_.wait();
+            {
+                mutexProcessed_.lock();
+                count = processedEvents_.count(&_e);
+                mutexProcessed_.unlock();
+            }
+            if(0 == count) {
+                semProcessedEvents_.notify();
+            } else {
+                break;
+            }
         }
-        Event *e = *(processedEvents_.find(&_e));
-        //从事件集中删除
-        processedEvents_.erase(&_e);
-        //释放事件
-        delete e;
+        {
+            mutexProcessed_.lock();
+            Event *e = *(processedEvents_.find(&_e));
+            //从事件set中删除
+            processedEvents_.erase(&_e);
+            //释放事件
+            delete e;
+            mutexProcessed_.unlock();
+        }
     }
 
     void EventManager::storeAndNotifyProcessed_(const Event&_e)
     {
         Event *e = new Event(_e);
-        processedEvents_.insert(e);
-        cvEventSet_.notify_all();
+        {
+            mutexProcessed_.lock();
+            processedEvents_.insert(e);
+            mutexProcessed_.unlock();
+        }
+        semProcessedEvents_.notify();
     }
 
 }
