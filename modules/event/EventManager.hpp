@@ -1,6 +1,10 @@
 #ifndef EVENTMANAGER_CLASS
 #define EVENTMANAGER_CLASS
 
+#include "EventPathHistory.hpp"
+#include "EventQueue.hpp"
+#include "Event.hpp"
+
 #include  <boost/bind.hpp>
 #include  <boost/thread/thread.hpp>
 #include  <boost/thread/mutex.hpp>
