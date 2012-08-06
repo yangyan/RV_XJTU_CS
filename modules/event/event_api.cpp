@@ -4,6 +4,7 @@
 
 using namespace rv_xjtu_yangyan;
 
+
 ManagerHandle event_manager_start()
 {
     EventManager *em = new EventManager();
@@ -17,3 +18,4 @@ void create_new_event(ManagerHandle mh)
     Event e = Event();
     em->syncAccept(e);
 }
+

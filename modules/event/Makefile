@@ -10,8 +10,8 @@ API_SOURCE = event_api.cpp
 
 OBJECTS = $(EVENT_SOURCE:.hpp=.o) $(API_SOURCE:.cpp=.o)
 
-event.a : $(OBJECTS)
-	ar -r $@ $^
+libevent.a : $(OBJECTS)
+	ar csr $@ $^
 
 %.o : %.hpp
 	$(GCC) -c $(DEBUG) $(INCLUDE) -o $@ $^ 
@@ -19,5 +19,10 @@ event.a : $(OBJECTS)
 %.o : %.cpp
 	$(GCC) -c $(DEBUG) $(INCLUDE) -o $@ $^ 
 
-test: test2.cpp event.a
+test: test2.cpp libevent.a
 	$(GPP) $(DEBUG) $(LIBS) -o $@ $^
+
+clean:
+	rm *.o
+	rm *.a
+	rm test
