@@ -36,6 +36,9 @@ namespace rv_xjtu_yangyan {
                     if(first->hashValue < second->hashValue) {
                         return true;
                     } else if(first->hashValue == second->hashValue) {
+                        //hashValue相同并不代表两个EventPath就是相同的,
+                        //还需要其路径完全一致，以后，可能还需要其他变量
+                        //来判断路径是否一致，现在我们使用函数名
                         return first->toString() < second->toString();
                     } else {
                         return false;

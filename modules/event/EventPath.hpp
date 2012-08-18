@@ -13,6 +13,9 @@
 #include  "Event.hpp"
 
 namespace rv_xjtu_yangyan {
+    //EventPath在以下位置使用
+    //1、在验证端记录
+    //2、存储于路径历史中
    
    class EventPath
    {
@@ -33,6 +36,8 @@ namespace rv_xjtu_yangyan {
            //void match(const EventPathGraph &epg);
            const std::string toString() const;
            void clone(EventPath &eventpath);
+           bool equalTo(const EventPath &);
+           Event* operator[](size_t n);
 
        public:
            std::vector<Event *> eventPath;
@@ -69,6 +74,14 @@ namespace rv_xjtu_yangyan {
         hashValue = hashValue * 17 + string_hash(eventItem.functionName);
     } 
 
+    bool EventPath::equalTo(const EventPath &eventPath)
+    {
+        if(this->toString() == eventPath.toString())
+            return true;
+
+        return false;
+    }
+
     const std::string EventPath::toString() const
     {
         std::stringstream ss; 
@@ -93,6 +106,14 @@ namespace rv_xjtu_yangyan {
         }
         hashValue = eventpath.hashValue;
     }
+
+    Event* EventPath::operator[](size_t n)
+    {
+        if(n >=  eventPath.size()) return NULL;
+        return eventPath[n];
+    }
+
+
 
 }
 

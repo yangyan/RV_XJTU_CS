@@ -30,6 +30,7 @@ namespace rv_xjtu_yangyan
            void push(const Event &eventItem);
 
            Event& pop();
+           Event& front();
 
            bool empty();
        private:
@@ -66,6 +67,14 @@ namespace rv_xjtu_yangyan
 
         Event *event = eventQueue.front();
         eventQueue.pop();
+        return *event;
+    }
+
+    Event& EventQueue::front()
+    {
+        //位于多线程环境下
+        boost::mutex::scoped_lock lock(mtx_);
+        Event *event = eventQueue.front();
         return *event;
     }
 

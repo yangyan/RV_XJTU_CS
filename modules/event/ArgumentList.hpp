@@ -5,10 +5,10 @@
 #include  <sstream>
 #include  <iostream>
 
+#include    "Argument.hpp"
+
 #include  <boost/serialization/access.hpp>
 #include  <boost/serialization/vector.hpp>
-
-#include    "Argument.hpp"
 
 namespace rv_xjtu_yangyan {
    

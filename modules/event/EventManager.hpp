@@ -4,6 +4,7 @@
 #include "EventPathHistory.hpp"
 #include "EventQueue.hpp"
 #include "Event.hpp"
+#include "MatchedEventPaths.hpp"
 
 #include  <boost/bind.hpp>
 #include  <boost/thread/thread.hpp>
@@ -37,6 +38,7 @@ namespace rv_xjtu_yangyan
         private:
             EventPathHistory *eventHistory_;
             EventQueue *eventQueue_;
+            MatchedEventPaths *matchedPaths_;
             std::set<Event *, EventComparer> processedEvents_;
 
             boost::mutex mutexProcessed_;
@@ -84,13 +86,14 @@ namespace rv_xjtu_yangyan
                 continue;
             }
             //对所有队列中的事件进行处理
+            matchedPaths_->doMatching((*eventQueue_).front());
+            std::cout << "<----^_^" << std::endl;
             //.........
             //.........
             //.........
             //.........
             //.........
             storeAndNotifyProcessed_((*eventQueue_).pop());
-            std::cout << "^_^" << std::endl;
         }
         semStop_.notify();
     }
@@ -107,6 +110,7 @@ namespace rv_xjtu_yangyan
     {
         eventHistory_ = new EventPathHistory();
         eventQueue_ = new EventQueue();
+        matchedPaths_ = new MatchedEventPaths(*eventHistory_);
     }
 
     EventManager::EventManager(const char *_file):running_(false),stop_(false)
@@ -114,6 +118,7 @@ namespace rv_xjtu_yangyan
         eventHistory_ = new EventPathHistory();
         (*eventHistory_).setStoreFile(_file);
         eventQueue_ = new EventQueue();
+        matchedPaths_ = new MatchedEventPaths(*eventHistory_);
     }
 
     EventManager::~EventManager()

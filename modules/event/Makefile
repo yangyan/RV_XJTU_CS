@@ -4,7 +4,7 @@ GPP	= g++
 GCC	= gcc
 DEBUG	= -g
 
-EVENT_SOURCE = Argument.hpp ArgumentList.hpp Event.hpp EventManager.hpp EventPathHistory.hpp EventPath.hpp EventQueue.hpp EventTime.hpp 
+EVENT_SOURCE = Argument.hpp ArgumentList.hpp Event.hpp EventManager.hpp EventPathHistory.hpp EventPath.hpp EventQueue.hpp EventTime.hpp MatchedEventPaths.hpp
 
 API_SOURCE = event_api.cpp
 
