@@ -1,0 +1,53 @@
+//软件故障管理系统配置文件编写规则
+
+1、规则文件的组成
+    一个文件中，可以有多个规则(rule), 每个规则是一类功能的逻辑单位。
+file: rule_list
+
+rule_list: rule_stmt rule_list
+
+2、规则
+rule_stmt: RULE program_name rule_name '{' item_list '}'
+
+program_name: NAME
+
+rule_name: NAME
+
+3、规则细则
+
+item_list: item_stmt item_list
+
+item_stmt: expr ';'
+
+expr:	  G expr
+	| N expr
+	| F expr
+	| expr 'U' expr
+	| expr 'W' expr
+	| expr 'I' expr
+	| expr '&' expr
+	| expr '|' expr
+	| '~' expr
+	| event
+
+
+	
+
+细则对一组逻辑变量进行维护与检测，也就是说。
+细则的组成如下:
+detail event event{ //start and end event
+	G event; //always
+	N event; //next
+	F event; //future
+	event U event; //until
+	event W event; //week until
+	event -> event;
+	event -> ~ event;
+	event -> event & event;
+	event -> event | event;
+	
+	event -> "event_string";
+}
+
+    
+     
