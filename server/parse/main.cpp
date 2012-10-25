@@ -121,6 +121,161 @@ BOOST_FUSION_ADAPT_STRUCT(
 
 namespace rv_xjtu_yangyan
 {
+    ///////////////////////////////////////////////////////////////////////////
+    //  语法树打印和解析
+    ///////////////////////////////////////////////////////////////////////////
+    int const tabsize = 1;
+    void tab(int indent)
+    {
+        for (int i = 0; i < indent; ++i)
+            std::cout << ' ';
+    }
+
+    struct exLTL_event_analyze
+    {
+        exLTL_event_analyze(int indent = 0)
+            : indent(indent)
+        {
+        }
+
+        void operator()(exLTL_event const &event) const
+        {
+            std::cout << event.event << std::endl;
+        }
+
+        int indent;
+    };
+
+    struct exLTL_unary_expr_analyze
+    {
+        exLTL_unary_expr_analyze(int indent = 0)
+            : indent(indent)
+        {
+        }
+
+        void operator()(exLTL_unary_expr const &expr) const;
+
+        int indent;
+    };
+
+    struct exLTL_binary_expr_analyze
+    {
+        exLTL_binary_expr_analyze(int indent = 0)
+            : indent(indent)
+        {
+        }
+
+        void operator()(exLTL_binary_expr const &expr) const;
+
+        int indent;
+    };
+
+
+
+    struct exLTL_var_expr_analyze : boost::static_visitor<>
+    {
+        //exLTL_var_expr_analyze具体实现
+        exLTL_var_expr_analyze(int indent = 0)
+            : indent(indent)
+        {
+        }
+        void operator()(exLTL_event const &expr) const 
+        {
+            exLTL_event_analyze((int)indent)(expr);
+        }
+        void operator()(exLTL_unary_expr const &expr) const
+        {
+            exLTL_unary_expr_analyze((int)indent)(expr);
+        }
+        void operator()(exLTL_binary_expr const &expr) const
+        {
+            exLTL_binary_expr_analyze((int)indent)(expr);
+        }
+
+        int indent;
+    };
+
+    void exLTL_unary_expr_analyze::operator()(exLTL_unary_expr const &expr) const
+    {
+        tab(indent);
+        std::cout << expr.op << std::endl;
+        tab(indent);
+        boost::apply_visitor(exLTL_var_expr_analyze(indent+tabsize), expr.expr);
+    }
+
+    void exLTL_binary_expr_analyze::operator()(exLTL_binary_expr const &expr) const
+    {
+        tab(indent);
+        boost::apply_visitor(exLTL_var_expr_analyze(indent+tabsize), expr.lh_expr);
+        tab(indent);
+        std::cout << expr.op << std::endl;
+        tab(indent);
+        boost::apply_visitor(exLTL_var_expr_analyze(indent+tabsize), expr.rh_expr);
+    }
+
+
+
+    struct exLTL_item_analyze
+    {
+        exLTL_item_analyze(int indent = 0)
+            : indent(indent)
+        {
+        }
+
+        void operator()(exLTL_item const &item) const
+        {
+            boost::apply_visitor(exLTL_var_expr_analyze(indent+tabsize), item.expr);
+        }
+
+        int indent;
+    };
+
+    struct exLTL_rule_analyze
+    {
+        exLTL_rule_analyze(int indent = 0)
+            : indent(indent)
+        {
+        }
+
+        void operator()(exLTL_rule const &rule) 
+        {
+            tab(indent);
+            std::cout << "Program Name:" << rule.program << std::endl;
+            tab(indent);
+            std::cout << "Rule Name:" << rule.rulename << std::endl;
+
+            BOOST_FOREACH(exLTL_item const &item, rule.items)
+            {
+                exLTL_item_analyze(indent+tabsize)(item);
+            }
+        }
+
+        int indent;
+    };
+
+    struct exLTL_file_analyze
+    {
+        exLTL_file_analyze(int indent = 0)
+            : indent(indent)
+        {
+        }
+
+        void operator()(exLTL_file &file) 
+        {
+            tab(indent);
+            BOOST_FOREACH(exLTL_rule const &rule, file.rules)
+            {
+                exLTL_rule_analyze(indent+tabsize)(rule);
+            }
+        }
+
+        int indent;
+    };
+
+}
+
+namespace rv_xjtu_yangyan
+{
 
     ///////////////////////////////////////////////////////////////////////////
     //  exLTL的语法在此定义
@@ -182,14 +337,16 @@ namespace rv_xjtu_yangyan
             rule.name("rule");
             file.name("file");
 
-            debug(event);
-            debug(event_str);
-            debug(unary_expr);
-            debug(binary_expr);
-            debug(var_expr);
-            debug(item);
-            debug(rule);
-            debug(file);
+            /*
+             *debug(event);
+             *debug(event_str);
+             *debug(unary_expr);
+             *debug(binary_expr);
+             *debug(var_expr);
+             *debug(item);
+             *debug(rule);
+             *debug(file);
+             */
         }
 
         qi::rule<Iterator, exLTL_file(), ascii::space_type> file;
@@ -250,6 +407,8 @@ int main(int argc, char **argv)
         std::cout << "-------------------------\n";
         std::cout << "Parsing succeeded\n";
         std::cout << "-------------------------\n";
+        rv_xjtu_yangyan::exLTL_file_analyze printer;
+        printer(ast);
         return 0;
     }
     else
