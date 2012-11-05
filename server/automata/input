@@ -1,0 +1,6 @@
+v_a v_b ~v_c
+~v_a ~v_b ~v_c
+v_a ~v_b ~v_c
+~v_a v_b v_c
+v_a ~v_b ~v_c
+

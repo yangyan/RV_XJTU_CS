@@ -74,6 +74,9 @@ namespace rv_xjtu_yangyan
         std::string rule_name;
         std::vector<automata_type *> automatas;
     };
+
+#define LEAF_P(p) ((automata_leaf *)p)
+#define NODE_P(p) ((automata_node *)p)
 }
 
 namespace rv_xjtu_yangyan

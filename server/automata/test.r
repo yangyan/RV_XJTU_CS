@@ -1,3 +1,3 @@
 Rule test(test){
-	"v_a";
+	G((~"v_a") -> ((~"v_b") U ("v_c" & "v_b")));
 }
