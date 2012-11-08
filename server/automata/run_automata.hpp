@@ -20,7 +20,7 @@ namespace rv_xjtu_yangyan
                 std::vector<std::string> events;
                 or_collection *next;
                 or_collection_printer(next = get_or_collection(*it));
-                std::cout << "~~~~~~~~~~~~~~~~~~~~"  << std::endl;
+                std::cout << std::endl;
                 while(true)
                 {
                 std::string s1, s2 , s3;
@@ -29,7 +29,7 @@ namespace rv_xjtu_yangyan
                 events.push_back(s2);
                 events.push_back(s3);
                 or_collection_printer(next = or_satisfy_events(next, events));
-                std::cout << "~~~~~~~~~~~~~~~~~~~~"  << std::endl;
+                std::cout << std::endl;
                 events.clear();
                 sleep(1);
                 }

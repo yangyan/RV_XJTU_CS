@@ -125,13 +125,15 @@ namespace rv_xjtu_yangyan
         for(set<and_collection *, and_comparer>::iterator and_it = orp->ands.begin();
                 and_it != orp->ands.end(); and_it++)
         {
+            cout << (and_it == orp->ands.begin() ? "":"|");
             cout << "(";
             for(set<automata_leaf *, event_comparer>::iterator event_iter = (*and_it)->events.begin();
                     event_iter != (*and_it)->events.end();  event_iter++)
             {
+                cout << (event_iter == (*and_it)->events.begin() ? "":"& ");
                 cout << ((*event_iter)->is_negative?"~":"") << (*event_iter)->event_name  << " ";
             }
-            cout << ")" << endl;
+            cout << ")" ;
         }
     }
 
