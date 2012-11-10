@@ -135,6 +135,7 @@ namespace rv_xjtu_yangyan
             }
             cout << ")" ;
         }
+        cout << endl;
     }
 
     bool and_satisfy_events(and_collection *ac, vector<string> &events)
@@ -190,7 +191,7 @@ namespace rv_xjtu_yangyan
         return rv_oc;
     }
                 
-    or_collection *or_satisfy_events(or_collection *lastest, vector<string> &events)
+    or_collection *or_satisfy_events(or_collection *lastest, vector<string> events)
     {
         or_collection *rv_oc = new or_collection();
         for(set<and_collection *, and_comparer>::iterator it = lastest->ands.begin();

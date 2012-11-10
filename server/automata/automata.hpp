@@ -68,11 +68,18 @@ namespace rv_xjtu_yangyan
         automata_type *right_automata;
     };
 
-    struct automata_collection
+    //表示一个rule结构中的所有自动机
+    struct automata_rule
     {
         std::string program_name;
         std::string rule_name;
         std::vector<automata_type *> automatas;
+    };
+
+    //表示所有自动机的集合
+    struct automata_collection
+    {
+        std::vector<automata_rule *> automata_rules;
     };
 
 #define LEAF_P(p) ((automata_leaf *)p)
@@ -243,16 +250,16 @@ namespace rv_xjtu_yangyan
     struct ast_rule_to_automata
     {
         ast_rule_to_automata() {}
-        automata_collection *operator()(ast_rule *ar)
+        automata_rule *operator()(ast_rule *ar)
         {
-            automata_collection *rv_ac = new automata_collection();
-            rv_ac->program_name = ar->program_name;
-            rv_ac->rule_name = ar->rule_name;
+            automata_rule *rv_ar = new automata_rule();
+            rv_ar->program_name = ar->program_name;
+            rv_ar->rule_name = ar->rule_name;
             for(std::vector<ast_item *>::iterator it = ar->items.begin(); it != ar->items.end(); it++)
             {
-                rv_ac->automatas.push_back(ast_item_to_automata()(*it));
+                rv_ar->automatas.push_back(ast_item_to_automata()(*it));
             }
-            return rv_ac;
+            return rv_ar;
         }
     };
 
@@ -262,15 +269,42 @@ namespace rv_xjtu_yangyan
         //！！！！这里，我们只返回第一个collection，暂时用于调试
         automata_collection *operator()(ast_file *af)
         {
+            automata_collection *rv_ac = new automata_collection();
             for(std::vector<ast_rule *>::iterator it = af->rules.begin(); it != af->rules.end(); it++)
             {
-                automata_collection *ac;
-                ac = ast_rule_to_automata()(*it);
-                std::cout << ac->automatas.size() << std::endl;
-                return ac;//here死
+                automata_rule *ar;
+                ar = ast_rule_to_automata()(*it);
+                rv_ac->automata_rules.push_back(ar);
             }
-            return NULL;
+            return rv_ac;
         }
+    };
+
+    ////////////////////////////////////////////////////////////////////
+    //获取一个自动机器中所有事件
+    ////////////////////////////////////////////////////////////////////
+
+    struct get_events_from_at//automata_type
+    {
+        get_events_from_at(std::vector<std::string> &events)
+            :events_(events)
+        {
+        }
+
+        void operator()(automata_type *at)
+        {
+            if(at->type == "leaf" && LEAF_P(at)->is_true_leaf == false)
+            {
+                events_.push_back(LEAF_P(at)->event_name);
+            }
+            else if(at->type == "node")
+            {
+                get_events_from_at((std::vector<std::string> &) events_)(NODE_P(at)->left_automata);
+                get_events_from_at((std::vector<std::string> &) events_)(NODE_P(at)->right_automata);
+            }
+        }
+
+        std::vector<std::string> &events_;
     };
 } 
 

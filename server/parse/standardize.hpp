@@ -307,7 +307,6 @@ namespace rv_xjtu_yangyan
         void operator()(ast_item *ai)
         {
             ast_expr_standardize()(ai->expr);
-            std::cout << "\n";
         }
     };
 

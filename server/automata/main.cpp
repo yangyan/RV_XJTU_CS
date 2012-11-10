@@ -55,7 +55,7 @@ int main(int argc, char **argv)
         rv_xjtu_yangyan::ast_standardize()(file);
         rv_xjtu_yangyan::ast_file_printer()(file);
         rv_xjtu_yangyan::automata_collection *ac = rv_xjtu_yangyan::ast_file_to_automata()(file);
-        rv_xjtu_yangyan::run_automata_collection()(ac);
+        rv_xjtu_yangyan::run_automata_rule()(ac->automata_rules[0]);
         return 0;
     }
     else
