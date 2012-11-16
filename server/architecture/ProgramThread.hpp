@@ -6,7 +6,10 @@
 
 #include  <boost/thread/thread.hpp>
 
+#include    "../../modules/event/Event.hpp"
+#include    "../../modules/solution/Result.hpp"
 #include    "../../modules/basic/semaphore.hpp"
+#include    "../../modules/solution/Solution.hpp"
 
 #include    "../automata/automata.hpp"
 #include    "../automata/reasonning.hpp"
@@ -190,10 +193,23 @@ namespace rv_xjtu_yangyan
         }
 
         //输入事件
-        void inputEvent(string event)
+        //之用字符串事件
+        /*
+         *void inputEvent(string event)
+         *{
+         *    inputs_.push(event);
+         *    semInput_.notify();
+         *}
+         */
+
+        //使用Event事件
+        void inputEvent(Event &event, Result &r)
         {
-            inputs_.push(event);
+            cout << event.eventName << endl;
+            inputs_.push(event.eventName);
+            resultptr_ = &r;
             semInput_.notify();
+            semFinish_.wait();
         }
 
     private:
@@ -219,15 +235,21 @@ namespace rv_xjtu_yangyan
                         pIE->setStatus(newEvent);
                         if(pA->is_satisfy(*pIE))
                         {
+                            Solution s;
+                            s.type = Solution::CORRECT;
+                            resultptr_->pushBackSolution(s);
                             cout << "推理成功，进入下一步" << endl;
                         }
                         else
                         {
+                            Solution s;
+                            resultptr_->pushBackSolution(s);
                             cout << "推理失败，停止" << endl;
                         }
 
                     }
                 }
+                semFinish_.notify();
             }
         }
 
@@ -240,7 +262,9 @@ namespace rv_xjtu_yangyan
         vector<pair<InterestEvents *, Automata *> > automatas_;
         queue<string> inputs_;
         semaphore semInput_;
+        semaphore semFinish_;
         boost::thread *pReasonningThread;
+        Result *resultptr_;
     };
 
 }

@@ -8,7 +8,8 @@
 #include  <boost/archive/text_oarchive.hpp>
 #include  <boost/archive/text_iarchive.hpp>
 
-#include    "../event/Event.hpp"
+#include    "../../modules/event/Event.hpp"
+#include    "EventDispatcher.hpp"
 
 using boost::asio::ip::tcp;
 
@@ -16,29 +17,32 @@ const int max_length = 1024;
 
 namespace rv_xjtu_yangyan
 {
+#define PORT 23451
     class Receiver 
     {
         public:
-            Receiver(short port)
+            Receiver(EventDispatcher &ed)
+                :acceptor_(io_service_, tcp::endpoint(tcp::v4(), PORT)),
+                eventDispatcher_(ed)
             {
-                boost::asio::io_service io_service;
-                tcp::acceptor acceptor(io_service, tcp::endpoint(tcp::v4(), port));
-
-                boost::shared_ptr<tcp::socket> socket(new tcp::socket(io_service));
-                socket_ = socket;
-                acceptor.accept(*socket_);
             }
-            void read()
+            void readAndProcess()
             {
                 try{
+                    boost::asio::ip::tcp::socket socket(io_service_);
+                    acceptor_.accept(socket);
                     std::stringstream ss;
-                    for(;;)
+                    //for(;;)
                     {
                         char data[max_length];
                         boost::system::error_code error;
-                        size_t length = socket_->read_some(boost::asio::buffer(data), error);
+                        //这里只读一次，因为确定Event不会超过max_length
+                        size_t length = socket.read_some(boost::asio::buffer(data), error);
                         if(error == boost::asio::error::eof)
-                            break;
+                        {
+                            //do nothing
+                            //break;
+                        }
                         else if (error)
                             throw boost::system::system_error(error);
                         data[length] = 0;
@@ -47,7 +51,8 @@ namespace rv_xjtu_yangyan
                     boost::archive::text_iarchive ia(ss);
                     Event e;
                     ia >> e;
-                    //std::cout << e.toString() << std::endl;
+                    Result result;
+                    eventDispatcher_.inputEvent(e, result);
                     /*
                      *here we want some process
 
@@ -60,6 +65,12 @@ namespace rv_xjtu_yangyan
                      对来的事件进行推理
 
                      */
+                    std::stringstream oss;
+                    boost::archive::text_oarchive oa(oss);
+                    oa << result;
+                    cout << oss.str() << endl;
+                    std::string os(oss.str());
+                    boost::asio::write(socket, boost::asio::buffer(os, os.length()));
                 }
                 catch (std::exception &e)
                 {
@@ -69,7 +80,10 @@ namespace rv_xjtu_yangyan
         private:
 
         private:
-            boost::shared_ptr<tcp::socket> socket_;
+            boost::asio::io_service io_service_;
+            //boost::shared_ptr<tcp::socket> socket_;
+            tcp::acceptor acceptor_;
+            EventDispatcher &eventDispatcher_;
     };
 
 }

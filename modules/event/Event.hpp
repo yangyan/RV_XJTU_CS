@@ -24,6 +24,7 @@ namespace rv_xjtu_yangyan {
                {
                    ar & processId;
                    ar & processName;
+                   ar & eventName;
                    ar & functionName;
                    ar & functionArgs;
                }
@@ -35,6 +36,7 @@ namespace rv_xjtu_yangyan {
            Event(const Event &event);
            void setCurrentPID();
            void setCurrentProcessName(std::string path);
+           void setEventName(std::string eName);
            void setFunctionName(std::string funcName);
            void setFunctionArgs(ArgumentList &funcArgs);
            void clone(const Event &event);
@@ -47,6 +49,7 @@ namespace rv_xjtu_yangyan {
        public:
            size_t       processId;
            std::string  processName;
+           std::string  eventName;
            std::string  functionName;
            ArgumentList functionArgs;
            EventTime    birthTime;
@@ -85,6 +88,11 @@ namespace rv_xjtu_yangyan {
     /*
      *读入函数名称
     */
+    void Event::setEventName(std::string eName)
+    {
+        eventName = eName;
+    }
+
     void Event::setFunctionName(std::string funcName)
     {
         functionName = funcName;

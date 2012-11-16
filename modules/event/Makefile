@@ -19,7 +19,7 @@ libevent.a : $(OBJECTS)
 %.o : %.cpp
 	$(GCC) -c $(DEBUG) $(INCLUDE) -o $@ $^ 
 
-test: test2.cpp libevent.a
+test: test.cpp libevent.a
 	$(GPP) $(DEBUG) $(LIBS) -o $@ $^
 
 clean:
