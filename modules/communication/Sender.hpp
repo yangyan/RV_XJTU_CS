@@ -17,11 +17,22 @@ const int max_length = 1024;
 
 namespace rv_xjtu_yangyan
 {
+#define DEFAULT_HOST "localhost"
+#define DEFAULT_PORT "23451"
     class Sender
     {
         public:
             Sender(std::string host, std::string port)
             {
+                tcp::resolver resolver(io_service_);
+                tcp::resolver::query query(tcp::v4(), host, port);
+                iterator_ = resolver.resolve(query);
+
+            }
+            Sender()
+            {
+                std::string host = DEFAULT_HOST;
+                std::string port = DEFAULT_PORT;
                 tcp::resolver resolver(io_service_);
                 tcp::resolver::query query(tcp::v4(), host, port);
                 iterator_ = resolver.resolve(query);

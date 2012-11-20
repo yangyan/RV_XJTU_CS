@@ -7,10 +7,11 @@
 using namespace rv_xjtu_yangyan;
 
 
-ManagerHandle event_manager_start()
+ManagerHandle event_manager_start(const char *proc_name)
 {
     EventManager *em = new EventManager();
     em->run();
+    em->procName = proc_name;
     return (ManagerHandle)em;
 }
 
@@ -24,12 +25,19 @@ EventHandle create_new_event()
 {
     Event *e = new Event();
     e->setCurrentPID();
+    return (EventHandle)e;
 }
 
 void event_set_func_name(EventHandle eh, const char *name)
 {
     Event *e = (Event *) eh;
     e->setFunctionName(name);
+}
+
+void event_set_event_name(EventHandle eh, const char *name)
+{
+    Event *e = (Event *) eh;
+    e->setEventName(name);
 }
 
 void event_add_func_arg(EventHandle eh, const char *format, ...)
@@ -53,5 +61,6 @@ void publish_event(ManagerHandle mh, EventHandle eh)
 {
     EventManager *em = (EventManager *)mh;
     Event *e = (Event *) eh;
+    e->setCurrentProcessName(em->procName);
     em->syncAccept(*e);
 }

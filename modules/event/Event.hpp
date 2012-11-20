@@ -107,6 +107,7 @@ namespace rv_xjtu_yangyan {
     {
         this->processId = event.processId;
         this->processName = event.processName;
+        this->eventName = event.eventName;
         this->functionName = event.functionName;
         this->functionArgs.clone(event.functionArgs);
         this->birthTime.clone(event.birthTime);

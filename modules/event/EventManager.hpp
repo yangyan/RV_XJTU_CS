@@ -13,6 +13,7 @@
 #include  <boost/chrono.hpp>
 
 #include    "../basic/semaphore.hpp"
+#include    "../communication/Sender.hpp"
 
 namespace rv_xjtu_yangyan
 {
@@ -35,6 +36,8 @@ namespace rv_xjtu_yangyan
          *    行。
          *目前，我们采用同步模式，异步模式以后研究。
          */
+        public:
+            std::string procName;
         private:
             EventPathHistory *eventHistory_;
             EventQueue *eventQueue_;
@@ -86,11 +89,22 @@ namespace rv_xjtu_yangyan
                 continue;
             }
             //对所有队列中的事件进行处理
-            matchedPaths_->doMatching((*eventQueue_).front());
-            std::cout << "<----^_^" << std::endl;
+            /*
+             *这里，我并没有进行本地历史路径匹配，因为这个功能还不完善，先完成离线端的诊断再说
+             */
+            /*
+             *matchedPaths_->doMatching((*eventQueue_).front());
+             */
+
+            /*
+             *这里是离线端的诊断，也就是在不匹配任何路径后
+             */
+            std::cout << "Sending A Event ..." << std::endl;
+            Sender sender;
+            sender.write((*eventQueue_).front());
             //.........
             //.........
-            //.........
+            //此处增加处理代码，也就是从sender中得到结果的处理
             //.........
             //.........
             storeAndNotifyProcessed_((*eventQueue_).pop());

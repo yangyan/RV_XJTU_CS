@@ -20,7 +20,7 @@ libevent.a : $(OBJECTS)
 	$(GCC) -c $(DEBUG) $(INCLUDE) -o $@ $^ 
 
 test: test.cpp libevent.a
-	$(GPP) $(DEBUG) $(LIBS) -o $@ $^
+	$(GPP) $(DEBUG) $(LIBS) -o $@ $< -Levent
 
 clean:
 	rm *.o

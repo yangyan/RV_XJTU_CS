@@ -8,4 +8,8 @@ Rule test2(test){
 	"v_a";
 }
 
+Rule  mainamainamainamaina(test){
+	G "f_main";
+}
+
 
