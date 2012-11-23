@@ -14,3 +14,6 @@
 #vim files
 *~
 *.swp
+
+#executable files
+main
