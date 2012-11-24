@@ -26,12 +26,13 @@ namespace rv_xjtu_yangyan {
 
        public:
            ArgumentList();
-           ~ArgumentList();
 
-           //转化为字符串
+           //转化为字符串 ...
            const std::string toString() const;
            //下标操作
            const Argument& operator[](const size_t index) const;
+           //返回参数数量
+           const size_t size() const;
 
            //复制本类
            void clone(const ArgumentList &argList);
@@ -40,11 +41,11 @@ namespace rv_xjtu_yangyan {
            template <typename T>
                void append(const T arg)
                {
-                   Argument *argument = new Argument(arg);
+                   Argument argument(arg);
                    argumentList.push_back(argument);
                }
        public:
-           std::vector<Argument *> argumentList;
+           std::vector<Argument> argumentList;
    };
 
 }
@@ -55,25 +56,16 @@ namespace rv_xjtu_yangyan {
    {
    }
 
-   ArgumentList::~ArgumentList()
-   {
-       for(std::vector<Argument *>::iterator iter = argumentList.begin();
-               iter != argumentList.end(); ++iter)
-       {
-           delete (*iter);
-       }
-   }
-
    /*
     *转化为字符串
     */
    const std::string ArgumentList::toString() const
    {
        std::stringstream ss;
-       for(std::vector<Argument *>::const_iterator iter = argumentList.begin();
+       for(std::vector<Argument>::const_iterator iter = argumentList.begin();
                iter != argumentList.end(); ++iter)
        {
-           ss <<  (*iter)->toString() << " ";
+           ss <<  (*iter).toString() << " ";
        }
        return ss.str();
    }
@@ -82,7 +74,14 @@ namespace rv_xjtu_yangyan {
     */
    const Argument& ArgumentList::operator[](const size_t index) const
    {
-       return *(argumentList[index]);
+       return (argumentList[index]);
+   }
+   /*
+    *数量
+    */
+   const size_t ArgumentList::size() const
+   {
+       return argumentList.size();
    }
 
    /*
@@ -90,10 +89,10 @@ namespace rv_xjtu_yangyan {
     */
    void ArgumentList::clone(const ArgumentList &argList)
    {
-       for(std::vector<Argument *>::const_iterator iter = argList.argumentList.begin();
+       for(std::vector<Argument>::const_iterator iter = argList.argumentList.begin();
                iter != argList.argumentList.end(); ++iter)
        {
-           this->append((*iter)->toString());
+           this->append((*iter).toString());
        }
    }
 }

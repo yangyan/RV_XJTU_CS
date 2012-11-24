@@ -4,6 +4,8 @@
 #include  <boost/serialization/access.hpp>
 #include  <iostream>
 
+#include    "../event/ArgumentList.hpp"
+
 namespace rv_xjtu_yangyan{
     using namespace std;
     class Solution 
@@ -15,6 +17,8 @@ namespace rv_xjtu_yangyan{
                void serialize(Archive &ar, const unsigned int version)
                {
                    ar & type;
+                   ar & functionName;
+                   ar & argumentList;
                }
        public:
            void print()
@@ -40,11 +44,14 @@ namespace rv_xjtu_yangyan{
             enum TYPE
             {
                 CORRECT,//表示推导正确，不需要解决
+                FUNCTION,
                 NOT_GIVEN, 
                 NO_SOLUTION
             };
 
             TYPE type;
+            string functionName;
+            ArgumentList argumentList;
 
         public:
             Solution();

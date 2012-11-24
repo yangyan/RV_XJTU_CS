@@ -1,5 +1,5 @@
-#ifndef RESULT_HPP
-#define RESULT_HPP
+#ifndef RESULT_CLASS
+#define RESULT_CLASS
 
 #include  <vector>
 #include  <iostream>
