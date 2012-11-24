@@ -38,7 +38,7 @@ namespace rv_xjtu_yangyan
                 iterator_ = resolver.resolve(query);
 
             }
-            void write(Event &e)
+            Result write(Event &e)
             {
                 std::stringstream ss;
                 boost::asio::ip::tcp::socket socket(io_service_);
@@ -69,7 +69,8 @@ namespace rv_xjtu_yangyan
                 boost::archive::text_iarchive ia(iss);
                 Result result;
                 ia >> result;
-                result.print();
+                /*打印*/result.print();
+                return result;
             }
 
         private:

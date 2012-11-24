@@ -7,6 +7,7 @@
 #include  <boost/asio.hpp>
 
 #include    "Solution.hpp"
+#include    "Solver.hpp"
 
 namespace rv_xjtu_yangyan
 {
@@ -50,6 +51,15 @@ namespace rv_xjtu_yangyan
                 (*it).print();
             }
             cout << endl;
+        }
+
+        void solveAll(Solver &s)
+        {
+            for(vector<Solution>::iterator it = solutions_.begin();
+                    it != solutions_.end(); it++)
+            {
+                s.applySolution(*it);
+            }
         }
 
     public:

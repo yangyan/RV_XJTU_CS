@@ -15,6 +15,8 @@
 #include    "../basic/semaphore.hpp"
 #include    "../communication/Sender.hpp"
 
+#include    "../solution/Solver.hpp"
+
 namespace rv_xjtu_yangyan
 {
     class EventManager 
@@ -51,6 +53,7 @@ namespace rv_xjtu_yangyan
             boost::thread *pRunThread_;
             bool stop_;
             bool running_;
+            Solver solver_;
         public:
             EventManager();
             //以历史文件为参数的初始化
@@ -61,6 +64,7 @@ namespace rv_xjtu_yangyan
             void syncAccept(Event &_event);
             void run();
             void safeStop();
+            void addSolveFunction(string, Solver::solver_func);
         private:
             void waitProcessed_(Event &_e);
             void storeAndNotifyProcessed_(const Event&_e);
@@ -101,11 +105,10 @@ namespace rv_xjtu_yangyan
              */
             std::cout << "Sending A Event ..." << std::endl;
             Sender sender;
-            sender.write((*eventQueue_).front());
-            //.........
-            //.........
+            Result result;
+            result = sender.write((*eventQueue_).front());
             //此处增加处理代码，也就是从sender中得到结果的处理
-            //.........
+            result.solveAll(solver_);
             //.........
             storeAndNotifyProcessed_((*eventQueue_).pop());
         }
@@ -197,6 +200,12 @@ namespace rv_xjtu_yangyan
         }
         semProcessedEvents_.notify();
     }
+
+    void EventManager::addSolveFunction(string fname, Solver::solver_func f)
+    {
+        solver_.registerFunction(fname, f);
+    }
+
 
 }
 

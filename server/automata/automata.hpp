@@ -17,6 +17,7 @@ namespace rv_xjtu_yangyan
     struct automata_type
     {
         std::string type;
+        std::string solution;
     };
 
     struct automata_leaf:automata_type
@@ -243,7 +244,10 @@ namespace rv_xjtu_yangyan
         ast_item_to_automata() {}
         automata_type *operator()(ast_item *ai)
         {
-            return ast_expr_to_automata()(ai->expr);
+            automata_type *rv;
+            rv = ast_expr_to_automata()(ai->expr);
+            rv->solution = ai->solution;
+            return rv;
         }
     };
 
@@ -266,7 +270,6 @@ namespace rv_xjtu_yangyan
     struct ast_file_to_automata
     {
         ast_file_to_automata() {}
-        //！！！！这里，我们只返回第一个collection，暂时用于调试
         automata_collection *operator()(ast_file *af)
         {
             automata_collection *rv_ac = new automata_collection();

@@ -17,7 +17,7 @@ namespace rv_xjtu_yangyan
     class Solver
     {
     public:
-        typedef int (*solver_func)(ArgumentList &al);
+        typedef int (*solver_func)(vector<string> &);
 
     public:
         bool registerFunction(string &name, solver_func sf)
@@ -43,7 +43,12 @@ namespace rv_xjtu_yangyan
                 iter = nfpair_.find(s.functionName);
                 if(iter != nfpair_.end())
                 {
-                    nfpair_[s.functionName](s.argumentList);
+                    //这里，我们需要将ArgumentList转化为vector<string>;
+                    vector<string> vs;
+                    for(vector<Argument>::iterator it = s.argumentList.argumentList.begin();
+                            it != s.argumentList.argumentList.end(); it++)
+                        vs.push_back((*it).toString());
+                    nfpair_[s.functionName](vs);
                 }
                 else
                 {

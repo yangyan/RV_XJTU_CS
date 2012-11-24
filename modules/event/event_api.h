@@ -3,10 +3,18 @@
 
 #include  <unistd.h>
 
+#include  <iostream>
+#include  <vector>
+
+using namespace std;
+
 typedef size_t * ManagerHandle;
 typedef size_t * EventHandle;
+typedef int (*FunctionHandle)(vector<string> &);
 
 extern ManagerHandle event_manager_start(const char*);
+
+extern void event_manager_add_solve_function(ManagerHandle, const char*, FunctionHandle);
 
 extern void event_manager_stop(ManagerHandle);
 

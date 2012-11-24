@@ -60,6 +60,7 @@ namespace rv_xjtu_yangyan
     struct exLTL_item
     {
         exLTL_var_expr expr;
+        std::string solution;
     };
 
     struct exLTL_rule
@@ -91,6 +92,7 @@ BOOST_FUSION_ADAPT_STRUCT(
 BOOST_FUSION_ADAPT_STRUCT(
         rv_xjtu_yangyan::exLTL_item,
         (rv_xjtu_yangyan::exLTL_var_expr, expr)
+        (std::string, solution)
 )
 BOOST_FUSION_ADAPT_STRUCT(
         rv_xjtu_yangyan::exLTL_binary_expr,
@@ -213,6 +215,7 @@ namespace rv_xjtu_yangyan
         void operator()(exLTL_item const &item) const
         {
             boost::apply_visitor(exLTL_var_expr_analyze(indent+tabsize), item.expr);
+            std::cout << "---- Solution is " << item.solution;
         }
 
         int indent;
@@ -235,6 +238,7 @@ namespace rv_xjtu_yangyan
             BOOST_FOREACH(exLTL_item const &item, rule.items)
             {
                 exLTL_item_analyze(indent+tabsize)(item);
+                std::cout << std::endl;
             }
         }
 
@@ -304,7 +308,9 @@ namespace rv_xjtu_yangyan
                 >> (char_("UWR|&") | char_("-") >> char_(">"))
                 >> (event | '(' >> var_expr >> ')');
 
-            item = var_expr >> ';';
+            solution_str = +char_("a-zA-Z_0-9");
+
+            item = var_expr >> ':' >> solution_str >> ';';
 
             name_str = +char_("a-zA-Z_0-9");
 
@@ -347,6 +353,7 @@ namespace rv_xjtu_yangyan
         qi::rule<Iterator, exLTL_event(), ascii::space_type> event;
         qi::rule<Iterator, std::string(), ascii::space_type> event_str;
         qi::rule<Iterator, std::string(), ascii::space_type> name_str;
+        qi::rule<Iterator, std::string(), ascii::space_type> solution_str;
     };
     //]
 }

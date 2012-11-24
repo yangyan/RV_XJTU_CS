@@ -28,6 +28,9 @@ namespace rv_xjtu_yangyan{
                    case CORRECT:
                        cerr << "CORRECT ";
                        break;
+                   case FUNCTION:
+                       cerr << "FUNCTION ";
+                       break;
                    case NOT_GIVEN:
                        cerr << "NOT_GIVEN ";
                        break;

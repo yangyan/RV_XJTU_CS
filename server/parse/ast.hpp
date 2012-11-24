@@ -99,6 +99,7 @@ namespace rv_xjtu_yangyan
         }
 
         ast_expr *expr;
+        std::string solution;
     };
 
     struct ast_rule
@@ -191,6 +192,7 @@ namespace rv_xjtu_yangyan
         {
             ast_item *rvp = new ast_item();
             rvp->expr = boost::apply_visitor(exLTL_var_expr_to_ast(), item.expr);
+            rvp->solution = item.solution;
             return rvp;
         }
     };
@@ -295,6 +297,7 @@ namespace rv_xjtu_yangyan
         void operator()(ast_item *ai)
         {
             ast_expr_printer()(ai->expr);
+            std::cout << "---- Solution:" << ai->solution;
             std::cout << "\n";
         }
     };

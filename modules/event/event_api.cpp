@@ -15,6 +15,13 @@ ManagerHandle event_manager_start(const char *proc_name)
     return (ManagerHandle)em;
 }
 
+void event_manager_add_solve_function(ManagerHandle mh, const char* fname, FunctionHandle f)
+{
+    EventManager *em = (EventManager *)mh;
+    em->addSolveFunction(fname, f);
+    return;
+}
+
 void event_manager_stop(ManagerHandle mh)
 {
     EventManager *em = (EventManager *)mh;

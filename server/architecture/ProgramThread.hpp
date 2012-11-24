@@ -143,7 +143,7 @@ namespace rv_xjtu_yangyan
             }
 
             //检测自动机当前状态是否符合输入的事件，并获取下一步时间的值
-            bool is_satisfy(InterestEvents &ie)
+            Solution is_satisfy(InterestEvents &ie)
             {
                 cout << "当前集合为：";
                 or_collection_printer(next_oc);
@@ -152,10 +152,23 @@ namespace rv_xjtu_yangyan
 
                 vector<string> nowEvents;
                 next_oc = or_satisfy_events(next_oc, ie.getEvents());
+                //这里，我们认为如果没有下一步的可接受集合，就说明本次推理失败，
+                //虽然这个观点对于v_a这种单步表达式是错误的，但是，对于一个能够连续
+                //运行的程序，不能看单步的结果，因此使用size（）==0这种方法判断有
+                //一定的合理性
                 if(next_oc->ands.size() == 0)
-                    return false;
+                {
+                    Solution s;
+                    s.type = Solution::FUNCTION;
+                    s.functionName = automata->solution;
+                    return s;
+                }
                 else
-                    return true;
+                {
+                    Solution s;
+                    s.type = Solution::CORRECT;
+                    return s;
+                }
             }
         public:
             string ruleName;
@@ -233,16 +246,15 @@ namespace rv_xjtu_yangyan
                     {
                         //推理过程
                         pIE->setStatus(newEvent);
-                        if(pA->is_satisfy(*pIE))
+                        Solution s;
+                        s = pA->is_satisfy(*pIE);
+                        if(s.type == Solution::CORRECT)
                         {
-                            Solution s;
-                            s.type = Solution::CORRECT;
                             resultptr_->pushBackSolution(s);
                             cout << "推理成功，进入下一步" << endl;
                         }
                         else
                         {
-                            Solution s;
                             resultptr_->pushBackSolution(s);
                             cout << "推理失败，停止" << endl;
                         }
