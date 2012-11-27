@@ -1,5 +1,5 @@
 Rule test(test){
-	"v_b":exit;
+	G "v_b":exit;
 }
 
 
