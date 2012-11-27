@@ -1,4 +1,4 @@
-Rule test(test){
+Rule test(rule1){
 	G "v_b":exit;
 }
 
