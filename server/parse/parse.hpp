@@ -57,8 +57,20 @@ namespace rv_xjtu_yangyan
         exLTL_var_expr rh_expr;
     };
 
+    struct exLTL_scope
+    {
+        std::string keyword;
+        exLTL_event event;
+    };
+
+    struct exLTL_scope_list
+    {
+        std::vector<exLTL_scope> scopes;
+    };
+
     struct exLTL_item
     {
+        exLTL_scope_list scopelist;
         exLTL_var_expr expr;
         std::string solution;
     };
@@ -91,6 +103,7 @@ BOOST_FUSION_ADAPT_STRUCT(
 )
 BOOST_FUSION_ADAPT_STRUCT(
         rv_xjtu_yangyan::exLTL_item,
+        (rv_xjtu_yangyan::exLTL_scope_list, scopelist)
         (rv_xjtu_yangyan::exLTL_var_expr, expr)
         (std::string, solution)
 )
@@ -108,6 +121,15 @@ BOOST_FUSION_ADAPT_STRUCT(
 BOOST_FUSION_ADAPT_STRUCT(
         rv_xjtu_yangyan::exLTL_event,
         (std::string, event)
+)
+BOOST_FUSION_ADAPT_STRUCT(
+        rv_xjtu_yangyan::exLTL_scope,
+        (std::string, keyword)
+        (rv_xjtu_yangyan::exLTL_event, event)
+)
+BOOST_FUSION_ADAPT_STRUCT(
+        rv_xjtu_yangyan::exLTL_scope_list,
+        (std::vector<rv_xjtu_yangyan::exLTL_scope>, scopes)
 )
 
 namespace rv_xjtu_yangyan
@@ -203,6 +225,32 @@ namespace rv_xjtu_yangyan
         std::cout << ")";
     }
 
+    struct exLTL_scope_analyze
+    {
+        exLTL_scope_analyze(){}
+
+        void operator()(exLTL_scope const &scope) const
+        {
+            std::cout << scope.keyword << "(";
+            exLTL_event_analyze(0)(scope.event);
+            std::cout << ")";
+        }
+    };
+
+
+    struct exLTL_scope_list_analyze
+    {
+        exLTL_scope_list_analyze(){ }
+
+        void operator()(exLTL_scope_list const &scopelist) const
+        {
+            BOOST_FOREACH(exLTL_scope const &scope, scopelist.scopes)
+            {
+                exLTL_scope_analyze()(scope);
+                std::cout << std::endl;
+            }
+        }
+    };
 
 
     struct exLTL_item_analyze
@@ -214,6 +262,7 @@ namespace rv_xjtu_yangyan
 
         void operator()(exLTL_item const &item) const
         {
+            exLTL_scope_list_analyze()(item.scopelist);
             boost::apply_visitor(exLTL_var_expr_analyze(indent+tabsize), item.expr);
             std::cout << "---- Solution is " << item.solution;
         }
@@ -291,33 +340,50 @@ namespace rv_xjtu_yangyan
 
             using phoenix::construct;
             using phoenix::val;
+            using phoenix::at_c;
+            using phoenix::push_back;
 
             ////////////////////////////////////////////////////////////////
             // 语法规则
             ////////////////////////////////////////////////////////////////
             //f表示函数，v表示变量
 
+            //事件描述和定义
             event_str = char_("fv") >> char_('_') >> +char_("a-zA-Z_0-9");
             event = '"' >> event_str >> '"'; 
+
+            //公式
             var_expr = unary_expr | binary_expr | event; //event必须在最后
 
+            //一元公式
             unary_expr =  char_("GFN~") >> 
                 (event | '(' >> var_expr >> ')');
 
+            //二元公式
             binary_expr = (event | '(' >> var_expr >> ')')
                 >> (char_("UWR|&") | char_("-") >> char_(">"))
                 >> (event | '(' >> var_expr >> ')');
 
+            //解决方法
             solution_str = +char_("a-zA-Z_0-9");
 
-            item = var_expr >> ':' >> solution_str >> ';';
+            //有关作用域的定义
+            scope_keyword = +char_("a-z");
+            scope = scope_keyword >> '(' >> event >> ')';
+            using boost::spirit::_1;
+            scope_list = scope          [push_back(at_c<0>(_val), _1)]
+                    >> *(',' >> scope  [push_back(at_c<0>(_val), _1)]);
+            //一条规则
+            item = scope_list >> '{' >> var_expr >> ';'>> '}' >> solution_str >> ';';
 
+            //名称和规则结构定义
             name_str = +char_("a-zA-Z_0-9");
 
             rule = "Rule"
                 >> name_str >> '(' >> name_str >> ')'
                 >> '{' >> *item >> '}';
 
+            //文件中包含若干规则
             file = eps >> *rule;
 
             ////////////////////////////////////////////////////////////////
@@ -354,6 +420,11 @@ namespace rv_xjtu_yangyan
         qi::rule<Iterator, std::string(), ascii::space_type> event_str;
         qi::rule<Iterator, std::string(), ascii::space_type> name_str;
         qi::rule<Iterator, std::string(), ascii::space_type> solution_str;
+
+        qi::rule<Iterator, exLTL_scope(), ascii::space_type> scope;
+        qi::rule<Iterator, exLTL_scope_list(), ascii::space_type> scope_list;
+        qi::rule<Iterator, std::string(), ascii::space_type> scope_keyword;
+
     };
     //]
 }

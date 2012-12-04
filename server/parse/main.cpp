@@ -52,8 +52,6 @@ int main(int argc, char **argv)
         file = rv_xjtu_yangyan::exLTL_file_to_ast()(ast);
         rv_xjtu_yangyan::ast_file_standardize()(file);
         rv_xjtu_yangyan::ast_file_printer()(file);
-        rv_xjtu_yangyan::ast_file_standardize()(file);
-        rv_xjtu_yangyan::ast_file_printer()(file);
         return 0;
     }
     else

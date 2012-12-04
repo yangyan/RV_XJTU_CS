@@ -92,12 +92,24 @@ namespace rv_xjtu_yangyan
         ast_expr *rh_subexpr;
     };
 
+    struct ast_scope
+    {
+        ast_scope()
+        {
+            samelevel = true;
+        }
+        bool samelevel;//表明end和begin是在同一层的
+        ast_event *begin;
+        ast_event *end;
+    };
+
     struct ast_item
     {
         ast_item()
         {
         }
 
+        ast_scope *scope;
         ast_expr *expr;
         std::string solution;
     };
@@ -184,6 +196,61 @@ namespace rv_xjtu_yangyan
         return rvp;
     }
 
+    struct exLTL_scopelist_to_scope
+    {
+        exLTL_scopelist_to_scope() { }
+
+        ast_scope *operator()(exLTL_scope_list &scopelist) const
+        {
+            ast_scope *rvp = new ast_scope();
+            if(scopelist.scopes.size() == 0)
+            {
+                std::cerr << "规则没有作用域" << std::endl;
+                exit(-1);
+            }
+            else if(scopelist.scopes.size() == 1)
+            {
+                if(scopelist.scopes.at(0).keyword != "within")
+                {
+                    std::cerr << "作用域使用错误，使用within或者begin与end" << std::endl;
+                    exit(-1);
+                }
+                rvp->samelevel = true;
+                rvp->begin = exLTL_event_to_ast()(scopelist.scopes.at(0).event);
+                rvp->end = exLTL_event_to_ast()(scopelist.scopes.at(0).event);
+            }
+            else if(scopelist.scopes.size() == 2)
+            {
+                std::string first_key = scopelist.scopes.at(0).keyword;
+                std::string second_key = scopelist.scopes.at(1).keyword;
+                if((first_key  == "begin" && second_key == "end")) 
+                {
+                    rvp->samelevel = false;
+                    rvp->begin = exLTL_event_to_ast()(scopelist.scopes.at(0).event);
+                    rvp->end = exLTL_event_to_ast()(scopelist.scopes.at(1).event);
+                }
+                else if((first_key  == "end" && second_key == "begin")) 
+                {
+                    rvp->samelevel = false;
+                    rvp->end = exLTL_event_to_ast()(scopelist.scopes.at(0).event);
+                    rvp->begin = exLTL_event_to_ast()(scopelist.scopes.at(1).event);
+                }
+                else
+                {
+                    std::cerr << "作用域使用错误，使用within或者begin与end" << std::endl;
+                    exit(-1);
+                }
+            }
+            else
+            {
+                std::cerr << "作用域使用错误，使用within或者begin与end" << std::endl;
+                exit(-1);
+            }
+
+            return rvp;
+        }
+    };
+
     struct exLTL_item_to_ast
     {
         exLTL_item_to_ast() { }
@@ -191,6 +258,7 @@ namespace rv_xjtu_yangyan
         ast_item *operator()(exLTL_item &item) const
         {
             ast_item *rvp = new ast_item();
+            rvp->scope = exLTL_scopelist_to_scope()(item.scopelist);
             rvp->expr = boost::apply_visitor(exLTL_var_expr_to_ast(), item.expr);
             rvp->solution = item.solution;
             return rvp;
@@ -291,11 +359,32 @@ namespace rv_xjtu_yangyan
         std::cout << " )";
     }
 
+    struct ast_scope_printer
+    {
+        ast_scope_printer(){}
+        void operator()(ast_scope *as)
+        {
+            if(as->samelevel == true)
+            {
+                std::cout << "同层次开始和结束点:";
+            }
+            else
+            {
+                std::cout << "不同层次开始和结束点:";
+            }
+            ast_event_printer()(as->begin);
+            std::cout << "和";
+            ast_event_printer()(as->end);
+            std::cout << std::endl;
+        }
+    };
+
     struct ast_item_printer
     {
         ast_item_printer() {}
         void operator()(ast_item *ai)
         {
+            ast_scope_printer()(ai->scope);
             ast_expr_printer()(ai->expr);
             std::cout << "---- Solution:" << ai->solution;
             std::cout << "\n";

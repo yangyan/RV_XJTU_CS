@@ -13,11 +13,13 @@ namespace rv_xjtu_yangyan
     ///////////////////////////////////////////////////////////
 
     struct automata_node;
+    struct automata_scope;
 
     struct automata_type
     {
         std::string type;
         std::string solution;
+        automata_scope *scope;
     };
 
     struct automata_leaf:automata_type
@@ -67,6 +69,13 @@ namespace rv_xjtu_yangyan
         std::string right_result;       //"true" "false" "ambiguous"
         automata_type *left_automata;
         automata_type *right_automata;
+    };
+
+    struct automata_scope
+    {
+        bool samelevel;
+        automata_leaf *begin;
+        automata_leaf *end;
     };
 
     //表示一个rule结构中的所有自动机
@@ -239,6 +248,20 @@ namespace rv_xjtu_yangyan
         return NULL;
     }
 
+    struct ast_scope_to_automata
+    {
+        ast_scope_to_automata() {}
+        automata_scope *operator()(ast_scope *as)
+        {
+            automata_scope *rv;
+            rv = new automata_scope();
+            rv->samelevel = as->samelevel;
+            rv->begin = LEAF_P(ast_event_to_automata()(as->begin));
+            rv->end = LEAF_P(ast_event_to_automata()(as->end));
+            return rv;
+        }
+    };
+
     struct ast_item_to_automata
     {
         ast_item_to_automata() {}
@@ -247,6 +270,7 @@ namespace rv_xjtu_yangyan
             automata_type *rv;
             rv = ast_expr_to_automata()(ai->expr);
             rv->solution = ai->solution;
+            rv->scope = ast_scope_to_automata()(ai->scope);
             return rv;
         }
     };

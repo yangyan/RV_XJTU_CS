@@ -138,8 +138,19 @@ namespace rv_xjtu_yangyan
         cout << endl;
     }
 
-    bool and_satisfy_events(and_collection *ac, vector<string> &events)
+    bool and_satisfy_events(and_collection *ac, vector<string> &events, bool &andTerminalResult)
     {
+        andTerminalResult = true;
+        for(set<automata_leaf *, event_comparer>::iterator it = ac->events.begin();
+                it != ac->events.end(); it++)
+        {
+            if((*it)->is_true_leaf == true && (*it)->is_acceptable == false)
+            {
+                andTerminalResult = false;
+                break;
+            }
+        }
+
         //判断一个事件是否符合，只需要查看其相反事件是否存在
         for(vector<string>::iterator it = events.begin();
                 it != events.end(); it++)
@@ -153,7 +164,10 @@ namespace rv_xjtu_yangyan
                 {
                     if((*sit)->is_negative == true 
                             && (*sit)->event_name == event)
+                    {
+                        andTerminalResult = false;
                         return false;
+                    }
                 }
             }
             else
@@ -164,7 +178,10 @@ namespace rv_xjtu_yangyan
                 {
                     if((*sit)->is_negative == false
                             && (*sit)->event_name == event)
+                    {
+                        andTerminalResult = false;
                         return false;
+                    }
                 }
             }
         }
@@ -191,13 +208,15 @@ namespace rv_xjtu_yangyan
         return rv_oc;
     }
                 
-    or_collection *or_satisfy_events(or_collection *lastest, vector<string> events)
+    or_collection *or_satisfy_events(or_collection *lastest, vector<string> events, bool &terminalResult)
     {
+        terminalResult = false;
         or_collection *rv_oc = new or_collection();
         for(set<and_collection *, and_comparer>::iterator it = lastest->ands.begin();
                 it != lastest->ands.end(); it++)
         {
-            if(and_satisfy_events(*it, events))
+            bool andTerminalResult;
+            if(and_satisfy_events(*it, events, andTerminalResult))
             {
                 or_collection *tmp_oc = get_next(*it);
                 for(set<and_collection *, and_comparer>::iterator sit = tmp_oc->ands.begin();
@@ -210,6 +229,7 @@ namespace rv_xjtu_yangyan
             {
                 //什么都不做
             }
+            terminalResult = terminalResult || andTerminalResult;
         }
         return rv_oc;
     }

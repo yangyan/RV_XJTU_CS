@@ -30,7 +30,8 @@ namespace rv_xjtu_yangyan
                     events.push_back(s1);
                     events.push_back(s2);
                     events.push_back(s3);
-                    or_collection_printer(next = or_satisfy_events(next, events));
+                    bool b;
+                    or_collection_printer(next = or_satisfy_events(next, events, b));
                     std::cout << std::endl;
                     events.clear();
                     sleep(1);
