@@ -116,6 +116,14 @@ namespace rv_xjtu_yangyan
         ast_event *end;
     };
 
+    struct ast_solution
+    {
+        ast_solution() {}
+
+        std::string solution_name;
+        std::vector<std::string> paras;
+    };
+
     struct ast_item
     {
         ast_item()
@@ -126,7 +134,7 @@ namespace rv_xjtu_yangyan
         ast_key_vars *keyvars;
         //ast_non_key_vars *nkeyvars;
         ast_expr *expr;
-        std::string solution;
+        ast_solution *solution;
     };
 
     struct ast_rule
@@ -285,6 +293,23 @@ namespace rv_xjtu_yangyan
         }
     };
 
+    struct exLTL_solution_to_ast
+    {
+        exLTL_solution_to_ast(){}
+
+        ast_solution *operator()(exLTL_solution &solution) const
+        {
+            ast_solution *rvp = new ast_solution();
+            rvp->solution_name = solution.solution_name;
+            BOOST_FOREACH(exLTL_var &var, solution.para_list.vars)
+            {
+                rvp->paras.push_back(var.var_name);
+            }
+            return rvp;
+        }
+
+    };
+
     struct exLTL_item_to_ast
     {
         exLTL_item_to_ast() { }
@@ -295,7 +320,7 @@ namespace rv_xjtu_yangyan
             rvp->scope = exLTL_scopelist_to_ast()(item.scopelist);
             rvp->keyvars  = exLTL_keyvars_to_ast()(item.keyvarlist);
             rvp->expr = boost::apply_visitor(exLTL_var_expr_to_ast(), item.expr);
-            rvp->solution = item.solution;
+            rvp->solution = exLTL_solution_to_ast()(item.solution);
             return rvp;
         }
     };
@@ -432,6 +457,19 @@ namespace rv_xjtu_yangyan
         }
     };
 
+    struct ast_solution_printer
+    {
+        ast_solution_printer() { }
+        void operator()(ast_solution *as)
+        {
+            std::cout << as->solution_name;
+            BOOST_FOREACH(std::string &var, as->paras)
+            {
+                std::cout << "#" << var;
+            }
+        }
+    };
+
     struct ast_item_printer
     {
         ast_item_printer() {}
@@ -442,7 +480,8 @@ namespace rv_xjtu_yangyan
             std::cout << "逻辑表达式为：";
             ast_expr_printer()(ai->expr);
             std::cout << std::endl;
-            std::cout << "解决方法为：" << ai->solution;
+            std::cout << "解决方法为：";
+            ast_solution_printer()(ai->solution);
             std::cout << std::endl;
             std::cout << std::endl;
         }

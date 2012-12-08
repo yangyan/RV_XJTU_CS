@@ -31,6 +31,9 @@ namespace rv_xjtu_yangyan{
                    case FUNCTION:
                        cerr << "FUNCTION ";
                        break;
+                   case INVALID_FUNCTION:
+                       cerr << "INVALID_FUNCTION";
+                       break;
                    case NOT_GIVEN:
                        cerr << "NOT_GIVEN ";
                        break;
@@ -48,6 +51,7 @@ namespace rv_xjtu_yangyan{
             {
                 CORRECT,//表示推导正确，不需要解决
                 FUNCTION,
+                INVALID_FUNCTION,
                 NOT_GIVEN, 
                 NO_SOLUTION
             };

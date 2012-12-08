@@ -10,9 +10,11 @@ using namespace std;
 ///////////////////////////////////////////////////////////////////////
 //自定义处理函数
 ///////////////////////////////////////////////////////////////////////
-int exit(vector<string> &args)
+int solution_exit(vector<string> &args)
 {
-    cout << "exit now!!!" << endl;
+    int *p = (int *)atoi(args.at(0).c_str());
+    free(p);
+    cout << ">>> Thanks to SFM!!! pointer " << p << " freed" << endl;
     return 0;
 }
 
@@ -25,7 +27,7 @@ aspect StartStopEventManager
     advice execution("% main(...)"):around()
     {
         mh = event_manager_start("test");
-        event_manager_add_solve_function(mh, "exit", exit);
+        event_manager_add_solve_function(mh, "solution_exit", solution_exit);
 
 
         eh = create_new_event();
@@ -44,9 +46,44 @@ aspect StartStopEventManager
 
 };
 
+aspect BeginEnd
+{
+    pointcut virtual functions() = 0;
+
+    advice call(functions()):around()
+    {
+        eh = create_new_event();
+        string beginEvent = "f_" + functionName + "@begin";
+        event_set_event_name(eh, beginEvent.c_str());
+        publish_event(mh, eh);
+
+        cout << JoinPoint::argtype(0) << endl;
+        tjp->proceed();
+
+        eh = create_new_event();
+        string endEvent = "f_" + functionName + "@end";
+        event_set_event_name(eh, endEvent.c_str());
+        publish_event(mh, eh);
+    }
+
+    string functionName;
+};
+
+aspect Often:public BeginEnd
+{
+    Often()
+    {
+        functionName = "often";
+    }
+    pointcut functions() = "void often()";
+};
+
+
 aspect MallocFree
 {
-    advice call("% malloc(...)"):after()
+    pointcut exclude() = !within("int solution_%(...)");
+
+    advice call("% malloc(...)") && exclude():after()
     {
         void **pp = tjp->result();
         cout << "mallocing..." << *pp << endl;
@@ -54,11 +91,11 @@ aspect MallocFree
         eh = create_new_event();
         event_set_event_name(eh, "f_malloc");
         event_set_func_name(eh, "f_malloc");
-        event_add_func_arg(eh, "%p", *pp);
+        event_add_func_arg(eh, "%d", *pp);
         publish_event(mh, eh);
     }
 
-    advice call("% free(...)"):after()
+    advice call("% free(...)") && exclude():after()
     {
         void **pp = tjp->arg<0>();
         cout << "freeing..." << *pp << endl;
@@ -66,23 +103,33 @@ aspect MallocFree
         eh = create_new_event();
         event_set_event_name(eh, "f_free");
         event_set_func_name(eh, "f_free");
-        event_add_func_arg(eh, "%p", *pp);
+        event_add_func_arg(eh, "%d", *pp);
         publish_event(mh, eh);
     }
 };
 
-int *b()
+int *b(int n)
 {
+    if(n == 0) return 0;
     int *a = (int *)malloc(100);
-    int *b = (int *)malloc(100);
+    int *c = (int *)malloc(100);
+    b(--n);
     free(a);
-    /*
-     *free(b);
-     */
-    return a;
+    return 0;
 }
+
+void often()
+{
+    b(3);
+}
+
+
 int main(int argc, char *argv[])
 {
-    int *a = b();
+    while(true)
+    {
+        sleep(1);
+        often();
+    }
     return 0;
 }

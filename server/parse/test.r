@@ -4,5 +4,5 @@ Rule test(test){
         key x,y,z;
         G "f_a(x,y,z)";
     }
-    exit;
+    exit(x,y);
 }

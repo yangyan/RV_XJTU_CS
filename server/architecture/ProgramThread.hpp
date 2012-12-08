@@ -223,6 +223,48 @@ namespace rv_xjtu_yangyan
                     }/*}}}*/
                     //通过解析event的形式来判断状态
                 public:
+                    void setSolution(Solution &s)
+                    {
+                        bool allParaIsReady = true;
+                        //检查是否所有参数都齐备
+                        BOOST_FOREACH(string &para, automataType->solution->paras)
+                        {
+                            if((keyTable.find(para) != keyTable.end() 
+                                        && keyTable[para] != "")
+                                    || (nonkeyTable.find(para) != nonkeyTable.end()
+                                        && nonkeyTable[para] != ""))
+                            {
+                                //能找到一个已经赋值过的参数
+                            }
+                            else
+                            {
+                                allParaIsReady = false;
+                            }
+                        }
+
+                        if(allParaIsReady == true)
+                        {
+                            s.functionName = automataType->solution->solution_name;
+                            BOOST_FOREACH(string &para, automataType->solution->paras)
+                            {
+                                if(keyTable.find(para) != keyTable.end())
+                                {
+                                    s.argumentList.append<string>(keyTable[para]);
+                                }
+                                else
+                                {
+                                    s.argumentList.append<string>(nonkeyTable[para]);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            cerr << "解决方法参数不齐备，不能设置解决方法" << endl;
+                            s.type = Solution::INVALID_FUNCTION;
+                        }
+
+                    }
+
                     bool isKeyEmpty()
                     {
                         for(map<string, string>::iterator it = keyTable.begin();
@@ -521,7 +563,7 @@ namespace rv_xjtu_yangyan
                 {
                     Solution s;
                     s.type = Solution::FUNCTION;
-                    s.functionName = automata->solution;
+                    ca.setSolution(s);
                     cout << "推理失败，停止" << endl;
                     return s;
                 }
