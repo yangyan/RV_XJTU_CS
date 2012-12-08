@@ -1,3 +1,8 @@
 Rule test(test){
-	within("f_main"):G "v_a":exit;
+    within("f_main()")
+    {
+        key x,y,z;
+        G "f_a(x,y,z)";
+    }
+    exit;
 }

@@ -30,7 +30,7 @@ namespace rv_xjtu_yangyan {
            //转化为字符串 ...
            const std::string toString() const;
            //下标操作
-           const Argument& operator[](const size_t index) const;
+           const Argument operator[](const size_t index) const;
            //返回参数数量
            const size_t size() const;
 
@@ -72,9 +72,11 @@ namespace rv_xjtu_yangyan {
    /*
     *下标操作
     */
-   const Argument& ArgumentList::operator[](const size_t index) const
+   const Argument ArgumentList::operator[](const size_t index) const
    {
-       return (argumentList[index]);
+       Argument a;
+       if(index >= argumentList.size()) return a;
+       else return (argumentList[index]);
    }
    /*
     *数量

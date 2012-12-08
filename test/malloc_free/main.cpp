@@ -29,15 +29,14 @@ aspect StartStopEventManager
 
 
         eh = create_new_event();
-        event_set_event_name(eh, "f_main_begin");
-        event_set_func_name(eh, "f_main_begin");
+        event_set_event_name(eh, "f_main@begin");
         publish_event(mh, eh);
 
         tjp->proceed();
 
         eh = create_new_event();
-        event_set_event_name(eh, "f_main_end");
-        event_set_func_name(eh, "f_main_end");
+        event_set_event_name(eh, "f_main@end");
+        //event_set_func_name(eh, "f_main_end");
         publish_event(mh, eh);
 
         event_manager_stop(mh);
@@ -75,11 +74,15 @@ aspect MallocFree
 int *b()
 {
     int *a = (int *)malloc(100);
+    int *b = (int *)malloc(100);
+    free(a);
+    /*
+     *free(b);
+     */
     return a;
 }
 int main(int argc, char *argv[])
 {
     int *a = b();
-    free(a);
     return 0;
 }

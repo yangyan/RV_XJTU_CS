@@ -15,11 +15,23 @@ namespace rv_xjtu_yangyan
     struct automata_node;
     struct automata_scope;
 
+    struct automata_key_vars
+    {
+        std::vector<std::string> vars;
+    };
+
+    struct automata_nonkey_vars
+    {
+        std::vector<std::string> vars;
+    };
+
     struct automata_type
     {
         std::string type;
         std::string solution;
         automata_scope *scope;
+        automata_key_vars *keyvar;
+        automata_nonkey_vars *nonkeyvar;
     };
 
     struct automata_leaf:automata_type
@@ -29,7 +41,7 @@ namespace rv_xjtu_yangyan
             type = "leaf";
         }
 
-        void set_event(std::string name)
+        void set_event(std::string name, std::vector<std::string> &vars)
         {
             event_name  = name;
             //下面是不变的
@@ -37,6 +49,11 @@ namespace rv_xjtu_yangyan
             is_true_leaf = false;
             is_acceptable = true;
             next_node = NULL;
+            for(std::vector<std::string>::iterator it = vars.begin();
+                    it != vars.end(); it++)
+            {
+                paras.push_back((*it));
+            }
         }
 
         void set_next_node(bool acceptable, automata_node *next)
@@ -54,6 +71,7 @@ namespace rv_xjtu_yangyan
         bool is_acceptable;     //区分可接受true还是不可接受true
         bool is_negative;       //区分事件
         std::string event_name;
+        std::vector<std::string> paras;
         automata_node *next_node; 
     };
 
@@ -98,6 +116,47 @@ namespace rv_xjtu_yangyan
 
 namespace rv_xjtu_yangyan
 {
+    ////////////////////////////////////////////////////////////////////
+    //获取一个自动机中所有非关键变量
+    ////////////////////////////////////////////////////////////////////
+    struct get_nonkey_vars_from_at//automata_type
+    {
+        get_nonkey_vars_from_at(automata_key_vars *av, automata_nonkey_vars *anv)
+            :top_anv_(anv), top_av_(av)
+        { 
+        }
+
+        void operator()(automata_type *at)
+        {
+            if(at->type == "leaf" && LEAF_P(at)->is_true_leaf == false)
+            {
+                automata_leaf *al = LEAF_P(at);
+                for(std::vector<std::string>::iterator it = al->paras.begin();
+                        it != al->paras.end(); it++)
+                {
+                    //确保变量不在key中
+                    std::vector<std::string>::iterator it0 = 
+                        find(top_av_->vars.begin(), top_av_->vars.end(), (*it));
+                    if(it0 == top_av_->vars.end())
+                    {
+                        //确保变量不在nonkey中
+                        std::vector<std::string>::iterator it1 = 
+                            find(top_anv_->vars.begin(), top_anv_->vars.end(), (*it));
+                        if(it1 == top_anv_->vars.end())
+                            top_anv_->vars.push_back(*it);
+                    }
+                }
+            }
+            else if(at->type == "node")
+            {
+                get_nonkey_vars_from_at(top_av_, top_anv_)(NODE_P(at)->left_automata);
+                get_nonkey_vars_from_at(top_av_, top_anv_)(NODE_P(at)->right_automata);
+            }
+        }
+        automata_nonkey_vars *top_anv_;
+        automata_key_vars *top_av_;
+    };
+    
     ///////////////////////////////////////////////////////////////////////////
     //  标准化后的抽象语法树转化为自动机
     ///////////////////////////////////////////////////////////////////////////
@@ -107,7 +166,7 @@ namespace rv_xjtu_yangyan
         automata_type *operator()(ast_event *ae)
         {
             automata_leaf *rv_al = new automata_leaf();
-            rv_al->set_event(ae->event_name);
+            rv_al->set_event(ae->event_name, ae->paras);
             return (automata_type *)rv_al;
         }
     };
@@ -261,6 +320,21 @@ namespace rv_xjtu_yangyan
             return rv;
         }
     };
+    
+    struct ast_key_vars_to_automata
+    {
+        automata_key_vars *operator()(ast_key_vars *akv)
+        {
+            automata_key_vars *rv;
+            rv = new automata_key_vars();
+            for(std::vector<std::string>::iterator it = akv->vars.begin();
+                    it != akv->vars.end(); it++)
+            {
+                rv->vars.push_back((*it));
+            }
+            return rv;
+        }
+    };
 
     struct ast_item_to_automata
     {
@@ -271,6 +345,17 @@ namespace rv_xjtu_yangyan
             rv = ast_expr_to_automata()(ai->expr);
             rv->solution = ai->solution;
             rv->scope = ast_scope_to_automata()(ai->scope);
+            rv->keyvar = ast_key_vars_to_automata()(ai->keyvars);
+            rv->nonkeyvar = new automata_nonkey_vars();
+            get_nonkey_vars_from_at(rv->keyvar, rv->nonkeyvar)(rv);
+            BOOST_FOREACH(std::string &var, rv->keyvar->vars)
+            {
+                std::cout << "关键变量为：" << var << std::endl;
+            }
+            BOOST_FOREACH(std::string &var, rv->nonkeyvar->vars)
+            {
+                std::cout << "非关键变量为：" << var << std::endl;
+            }
             return rv;
         }
     };
@@ -307,32 +392,8 @@ namespace rv_xjtu_yangyan
         }
     };
 
-    ////////////////////////////////////////////////////////////////////
-    //获取一个自动机器中所有事件
-    ////////////////////////////////////////////////////////////////////
 
-    struct get_events_from_at//automata_type
-    {
-        get_events_from_at(std::vector<std::string> &events)
-            :events_(events)
-        {
-        }
 
-        void operator()(automata_type *at)
-        {
-            if(at->type == "leaf" && LEAF_P(at)->is_true_leaf == false)
-            {
-                events_.push_back(LEAF_P(at)->event_name);
-            }
-            else if(at->type == "node")
-            {
-                get_events_from_at((std::vector<std::string> &) events_)(NODE_P(at)->left_automata);
-                get_events_from_at((std::vector<std::string> &) events_)(NODE_P(at)->right_automata);
-            }
-        }
-
-        std::vector<std::string> &events_;
-    };
 } 
 
 #endif

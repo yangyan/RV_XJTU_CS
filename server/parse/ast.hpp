@@ -55,6 +55,18 @@ namespace rv_xjtu_yangyan
             return false;
     }
 
+    struct ast_key_vars
+    {
+        std::vector<std::string> vars;
+    };
+
+    /*
+     *struct ast_non_key_vars
+     *{
+     *    std::vector<std::string> vars;
+     *};
+     */
+
     struct ast_op
     {
         std::string op_name;
@@ -71,6 +83,7 @@ namespace rv_xjtu_yangyan
             op_name = "event";
         }
         std::string event_name;
+        std::vector<std::string> paras;
     };
 
     struct ast_unary_expr:ast_expr
@@ -110,6 +123,8 @@ namespace rv_xjtu_yangyan
         }
 
         ast_scope *scope;
+        ast_key_vars *keyvars;
+        //ast_non_key_vars *nkeyvars;
         ast_expr *expr;
         std::string solution;
     };
@@ -145,6 +160,10 @@ namespace rv_xjtu_yangyan
         {
             ast_event *rvp = new ast_event();
             rvp->event_name = event.event;
+            BOOST_FOREACH(exLTL_var const &var, event.para_list.vars)
+            {
+                rvp->paras.push_back(var.var_name);
+            }
             return rvp;
         }
     };
@@ -196,9 +215,9 @@ namespace rv_xjtu_yangyan
         return rvp;
     }
 
-    struct exLTL_scopelist_to_scope
+    struct exLTL_scopelist_to_ast
     {
-        exLTL_scopelist_to_scope() { }
+        exLTL_scopelist_to_ast() { }
 
         ast_scope *operator()(exLTL_scope_list &scopelist) const
         {
@@ -251,6 +270,21 @@ namespace rv_xjtu_yangyan
         }
     };
 
+    struct exLTL_keyvars_to_ast
+    {
+        exLTL_keyvars_to_ast() {}
+
+        ast_key_vars *operator()(exLTL_key_var_list &kvl) const
+        {
+            ast_key_vars *rvp = new ast_key_vars();
+            BOOST_FOREACH(exLTL_var &var, kvl.vars)
+            {
+                rvp->vars.push_back(var.var_name);
+            }
+            return rvp;
+        }
+    };
+
     struct exLTL_item_to_ast
     {
         exLTL_item_to_ast() { }
@@ -258,7 +292,8 @@ namespace rv_xjtu_yangyan
         ast_item *operator()(exLTL_item &item) const
         {
             ast_item *rvp = new ast_item();
-            rvp->scope = exLTL_scopelist_to_scope()(item.scopelist);
+            rvp->scope = exLTL_scopelist_to_ast()(item.scopelist);
+            rvp->keyvars  = exLTL_keyvars_to_ast()(item.keyvarlist);
             rvp->expr = boost::apply_visitor(exLTL_var_expr_to_ast(), item.expr);
             rvp->solution = item.solution;
             return rvp;
@@ -308,6 +343,10 @@ namespace rv_xjtu_yangyan
         void operator()(ast_event *ae)
         {
             std::cout << ae->event_name;
+            BOOST_FOREACH(std::string &var, ae->paras)
+            {
+                std::cout << "#" << var;
+            }
         }
     };
 
@@ -379,15 +418,33 @@ namespace rv_xjtu_yangyan
         }
     };
 
+    struct ast_keyvars_printer
+    {
+        ast_keyvars_printer() {}
+        void operator()(ast_key_vars *akv)
+        {
+            std::cout << "关键变量是：";
+            BOOST_FOREACH(std::string &var, akv->vars)
+            {
+                std::cout << var << " ";
+            }
+            std::cout << std::endl;
+        }
+    };
+
     struct ast_item_printer
     {
         ast_item_printer() {}
         void operator()(ast_item *ai)
         {
             ast_scope_printer()(ai->scope);
+            ast_keyvars_printer()(ai->keyvars);
+            std::cout << "逻辑表达式为：";
             ast_expr_printer()(ai->expr);
-            std::cout << "---- Solution:" << ai->solution;
-            std::cout << "\n";
+            std::cout << std::endl;
+            std::cout << "解决方法为：" << ai->solution;
+            std::cout << std::endl;
+            std::cout << std::endl;
         }
     };
 

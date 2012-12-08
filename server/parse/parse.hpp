@@ -32,6 +32,21 @@ namespace rv_xjtu_yangyan
     struct exLTL_unary_expr;
     struct exLTL_event;
 
+    struct exLTL_var
+    {
+        std::string var_name;
+    };
+
+    struct exLTL_key_var_list
+    {
+        std::vector<exLTL_var> vars;
+    };
+
+    struct exLTL_para_list
+    {
+        std::vector<exLTL_var> vars;
+    };
+
     typedef boost::variant<
         exLTL_event,
         boost::recursive_wrapper<exLTL_unary_expr>,
@@ -42,6 +57,7 @@ namespace rv_xjtu_yangyan
     struct exLTL_event
     {
         std::string event;
+        exLTL_para_list para_list;
     };
 
     struct exLTL_unary_expr
@@ -68,9 +84,11 @@ namespace rv_xjtu_yangyan
         std::vector<exLTL_scope> scopes;
     };
 
+
     struct exLTL_item
     {
         exLTL_scope_list scopelist;
+        exLTL_key_var_list keyvarlist;
         exLTL_var_expr expr;
         std::string solution;
     };
@@ -104,6 +122,7 @@ BOOST_FUSION_ADAPT_STRUCT(
 BOOST_FUSION_ADAPT_STRUCT(
         rv_xjtu_yangyan::exLTL_item,
         (rv_xjtu_yangyan::exLTL_scope_list, scopelist)
+        (rv_xjtu_yangyan::exLTL_key_var_list, keyvarlist)
         (rv_xjtu_yangyan::exLTL_var_expr, expr)
         (std::string, solution)
 )
@@ -121,6 +140,7 @@ BOOST_FUSION_ADAPT_STRUCT(
 BOOST_FUSION_ADAPT_STRUCT(
         rv_xjtu_yangyan::exLTL_event,
         (std::string, event)
+        (rv_xjtu_yangyan::exLTL_para_list, para_list)
 )
 BOOST_FUSION_ADAPT_STRUCT(
         rv_xjtu_yangyan::exLTL_scope,
@@ -131,6 +151,19 @@ BOOST_FUSION_ADAPT_STRUCT(
         rv_xjtu_yangyan::exLTL_scope_list,
         (std::vector<rv_xjtu_yangyan::exLTL_scope>, scopes)
 )
+BOOST_FUSION_ADAPT_STRUCT(
+        rv_xjtu_yangyan::exLTL_var,
+        (std::string, var_name)
+)
+BOOST_FUSION_ADAPT_STRUCT(
+        rv_xjtu_yangyan::exLTL_key_var_list,
+        (std::vector<rv_xjtu_yangyan::exLTL_var>, vars)
+)
+BOOST_FUSION_ADAPT_STRUCT(
+        rv_xjtu_yangyan::exLTL_para_list,
+        (std::vector<rv_xjtu_yangyan::exLTL_var>, vars)
+)
+
 
 namespace rv_xjtu_yangyan
 {
@@ -144,6 +177,28 @@ namespace rv_xjtu_yangyan
             std::cout << ' ';
     }
 
+    struct exLTL_var_analyze
+    {
+        void operator()(exLTL_var const &var) const
+        {
+            std::cout << var.var_name;
+        }
+    };
+
+    struct exLTL_key_var_list_analyze
+    {
+        void operator()(exLTL_key_var_list const &kvl) const
+        {
+            std::cout << "KEY VAR: ";
+            BOOST_FOREACH(exLTL_var const &var, kvl.vars)
+            {
+                exLTL_var_analyze()(var);
+                std::cout << " ";
+            }
+            std::cout << std::endl;
+        }
+    };
+
     struct exLTL_event_analyze
     {
         exLTL_event_analyze(int indent = 0)
@@ -154,6 +209,14 @@ namespace rv_xjtu_yangyan
         void operator()(exLTL_event const &event) const
         {
             std::cout << event.event;
+            std::cout << "(";
+            std::cout << " ";
+            BOOST_FOREACH(exLTL_var const &var, event.para_list.vars)
+            {
+                exLTL_var_analyze()(var);
+                std::cout << " ";
+            }
+            std::cout << ")";
         }
 
         int indent;
@@ -244,6 +307,7 @@ namespace rv_xjtu_yangyan
 
         void operator()(exLTL_scope_list const &scopelist) const
         {
+            std::cout << "SCOPE: ";
             BOOST_FOREACH(exLTL_scope const &scope, scopelist.scopes)
             {
                 exLTL_scope_analyze()(scope);
@@ -263,8 +327,11 @@ namespace rv_xjtu_yangyan
         void operator()(exLTL_item const &item) const
         {
             exLTL_scope_list_analyze()(item.scopelist);
+            exLTL_key_var_list_analyze()(item.keyvarlist);
+            std::cout << "EXPRESSION: ";
             boost::apply_visitor(exLTL_var_expr_analyze(indent+tabsize), item.expr);
-            std::cout << "---- Solution is " << item.solution;
+            std::cout << std::endl;
+            std::cout << "SOLUTION: " << item.solution;
         }
 
         int indent;
@@ -279,16 +346,19 @@ namespace rv_xjtu_yangyan
 
         void operator()(exLTL_rule const &rule) 
         {
-            tab(indent);
-            std::cout << "Program Name:" << rule.program << " ";
-            tab(indent);
-            std::cout << "Rule Name:" << rule.rulename << std::endl;
+            std::cout << "***************************************************************" << std::endl;
+            std::cout << "PROGRAM NAME: " << rule.program << " ";
+            std::cout << std::endl;
+            std::cout << "RULE NAME: " << rule.rulename << std::endl;
 
             BOOST_FOREACH(exLTL_item const &item, rule.items)
             {
+                std::cout << "----------------------------------------------" << std::endl;
                 exLTL_item_analyze(indent+tabsize)(item);
                 std::cout << std::endl;
+                std::cout << "----------------------------------------------" << std::endl;
             }
+            std::cout << "***************************************************************" << std::endl;
         }
 
         int indent;
@@ -346,11 +416,23 @@ namespace rv_xjtu_yangyan
             ////////////////////////////////////////////////////////////////
             // 语法规则
             ////////////////////////////////////////////////////////////////
+            using boost::spirit::_1;
+            //关键变量定义，关键变量是指决定一个自动机是否唯一的变量
+            var = char_("a-zA-Z_") >> *char_("a-zA-Z_0-9");
+            key_var_list = "key" 
+                >> -var     [push_back(at_c<0>(_val), _1)]
+                >> *(',' >> var [push_back(at_c<0>(_val), _1)]);
+            //参数变量，参数变量应当包含关键变量，甚至更多
+            para_list = '('
+                >> -var     [push_back(at_c<0>(_val), _1)]
+                >> *(',' >> var [push_back(at_c<0>(_val), _1)])
+                >> ')';
+
             //f表示函数，v表示变量
 
             //事件描述和定义
             event_str = char_("fv") >> char_('_') >> +char_("a-zA-Z_0-9");
-            event = '"' >> event_str >> '"'; 
+            event = '"' >> event_str >> para_list >> '"'; 
 
             //公式
             var_expr = unary_expr | binary_expr | event; //event必须在最后
@@ -370,11 +452,17 @@ namespace rv_xjtu_yangyan
             //有关作用域的定义
             scope_keyword = +char_("a-z");
             scope = scope_keyword >> '(' >> event >> ')';
-            using boost::spirit::_1;
             scope_list = scope          [push_back(at_c<0>(_val), _1)]
                     >> *(',' >> scope  [push_back(at_c<0>(_val), _1)]);
+
+
             //一条规则
-            item = scope_list >> '{' >> var_expr >> ';'>> '}' >> solution_str >> ';';
+            item = scope_list 
+                >> '{' 
+                >> key_var_list >> ';' 
+                >> var_expr >> ';'
+                >> '}' 
+                >> solution_str >> ';';
 
             //名称和规则结构定义
             name_str = +char_("a-zA-Z_0-9");
@@ -389,25 +477,15 @@ namespace rv_xjtu_yangyan
             ////////////////////////////////////////////////////////////////
             //命名
             ////////////////////////////////////////////////////////////////
-            event.name("event");
-            event_str.name("event_str");
-            unary_expr.name("unary_expr");
-            binary_expr.name("binary_expr");
-            var_expr.name("var_expr");
-            item.name("item");
-            rule.name("rule");
-            file.name("file");
-
-            /*
-             *debug(event);
-             *debug(event_str);
-             *debug(unary_expr);
-             *debug(binary_expr);
-             *debug(var_expr);
-             *debug(item);
-             *debug(rule);
-             *debug(file);
-             */
+/*
+ *            event.name("event");
+ *            para_list.name("para_list");
+ *            var.name("var");
+ *
+ *            debug(event);
+ *            debug(para_list);
+ *            debug(var);
+ */
         }
 
         qi::rule<Iterator, exLTL_file(), ascii::space_type> file;
@@ -425,6 +503,9 @@ namespace rv_xjtu_yangyan
         qi::rule<Iterator, exLTL_scope_list(), ascii::space_type> scope_list;
         qi::rule<Iterator, std::string(), ascii::space_type> scope_keyword;
 
+        qi::rule<Iterator, exLTL_key_var_list(), ascii::space_type> key_var_list;
+        qi::rule<Iterator, exLTL_para_list(), ascii::space_type> para_list;
+        qi::rule<Iterator, exLTL_var(), ascii::space_type> var;
     };
     //]
 }
