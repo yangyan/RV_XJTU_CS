@@ -99,6 +99,14 @@ namespace rv_xjtu_yangyan
                 ast_expr_standardize()(aue->subexpr);
                 return;
             }
+            else if(aue->subexpr->op_name  == "X")
+            {
+                //~Xa = X~a
+                aue->op_name = "X";
+                aue->subexpr->op_name = "~";
+                ast_expr_standardize()(aue->subexpr);
+                return;
+            }
             else if(aue->subexpr->op_name == "|")
             {
                 //~(a|b) = ~a & ~b

@@ -152,6 +152,8 @@ namespace rv_xjtu_yangyan
                 {
                     get_events_from_at(events, NODE_P(at)->left_automata);
                     get_events_from_at(events, NODE_P(at)->right_automata);
+                    if(NODE_P(at)->extra_automata != NULL)
+                        get_events_from_at(events, NODE_P(at)->extra_automata);
                 }
             }/*}}}*/
 
@@ -371,6 +373,8 @@ namespace rv_xjtu_yangyan
                     InterestEvents interestEvents;
 
                     boost::uuids::uuid _uuid;
+                    bool terminalResult;
+                    bool reasonResult;
 
             };/*}}}*/
 
@@ -531,7 +535,7 @@ namespace rv_xjtu_yangyan
             //检测自动机当前状态是否符合输入的事件，并获取下一步时间的值
             Solution is_satisfy(ConcreteAutomata &ca, bool isEnd)
             {
-                or_collection *oc = ca.oc;
+                or_collection *&oc = ca.oc;
                 vector<string> events = ca.getEvents();
 
                 cout << "当前自动机为：" << ca._uuid << endl;
@@ -543,28 +547,53 @@ namespace rv_xjtu_yangyan
                     cout << " " << e;
                 }
 
+                //如果是结尾事件，那么可以提前结束了
+                if(isEnd == true && ca.terminalResult == false)
+                {
+                    Solution s;
+                    s.type = Solution::FUNCTION;
+                    ca.setSolution(s);
+                    cout << "\n$$$结尾，推理失败" << endl;
+                    return s;
+                }
+                else if(isEnd == true && ca.terminalResult == true)
+                {
+                    Solution s;
+                    s.type = Solution::CORRECT;
+                    cout << "\n$$$结尾，推理成功" << endl;
+                    return s;
+                }
+
                 //对于无法推理下去的集合，后面的解决方案都是ignore
                 if(oc->ands.size() == 0)
                 {
                     Solution s;
                     s.type = Solution::NO_SOLUTION;
-                    cout << "无法推理下去了，忽略" << endl;
+                    cout << "\n无法推理下去了，忽略" << endl;
                     return s;
                 }
 
                 vector<string> nowEvents;
-                bool terminalResult;
-                oc = or_satisfy_events(oc, events, terminalResult);
-                //这里，我们认为如果没有下一步的可接受集合，就说明本次推理失败，
-                //虽然这个观点对于v_a这种单步表达式是错误的，但是，对于一个能够连续
-                //运行的程序，不能看单步的结果，因此使用size（）==0这种方法判断有
-                //一定的合理性
-                if(oc->ands.size() == 0 || (isEnd == true && terminalResult == false))
+                oc = or_satisfy_events(oc, events, ca.reasonResult, ca.terminalResult);
+
+                cout << "\n";
+                cout << "下一步集合为：";
+                or_collection_printer(oc);
+
+                if(ca.reasonResult == false)
                 {
                     Solution s;
                     s.type = Solution::FUNCTION;
                     ca.setSolution(s);
                     cout << "推理失败，停止" << endl;
+                    ca.terminalResult = true; //防止结尾的时候再次触发错误
+                    return s;
+                }
+                else if(oc->ands.size() == 0)
+                {
+                    Solution s;
+                    s.type = Solution::CORRECT;
+                    cout << "推理成功，但是已经可以终结了！！" << endl;
                     return s;
                 }
                 else

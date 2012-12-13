@@ -464,7 +464,7 @@ namespace rv_xjtu_yangyan
             var_expr = unary_expr | binary_expr | event; //event必须在最后
 
             //一元公式
-            unary_expr =  char_("GFN~") >> 
+            unary_expr =  char_("GFNX~") >>   //这里，使用N代表下一个，X代表弱下一个
                 (event | '(' >> var_expr >> ')');
 
             //二元公式

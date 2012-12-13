@@ -194,7 +194,7 @@ namespace rv_xjtu_yangyan
         for(set<automata_leaf *, event_comparer>::iterator it = ac->events.begin();
                 it != ac->events.end(); it++)
         {
-            if((*it)->event_name == "true")
+            if((*it)->event_name == "true" && (*it)->next_node != NULL) //有的true节点没有next_node那就是真节点
             {
                 or_collection *tmp_oc;
                 tmp_oc = get_or_collection((*it)->next_node);
@@ -208,15 +208,18 @@ namespace rv_xjtu_yangyan
         return rv_oc;
     }
                 
-    or_collection *or_satisfy_events(or_collection *lastest, vector<string> events, bool &terminalResult)
+    or_collection *or_satisfy_events(or_collection *lastest, vector<string> events, bool &reasonResult, bool &terminalResult)
     {
         terminalResult = false;
+        reasonResult = false;
+
         or_collection *rv_oc = new or_collection();
         for(set<and_collection *, and_comparer>::iterator it = lastest->ands.begin();
                 it != lastest->ands.end(); it++)
         {
             bool andTerminalResult;
-            if(and_satisfy_events(*it, events, andTerminalResult))
+            bool andReasonResult;
+            if(andReasonResult = and_satisfy_events(*it, events, andTerminalResult))
             {
                 or_collection *tmp_oc = get_next(*it);
                 for(set<and_collection *, and_comparer>::iterator sit = tmp_oc->ands.begin();
@@ -229,6 +232,7 @@ namespace rv_xjtu_yangyan
             {
                 //什么都不做
             }
+            reasonResult = reasonResult || andReasonResult;
             terminalResult = terminalResult || andTerminalResult;
         }
         return rv_oc;

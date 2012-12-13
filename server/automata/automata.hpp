@@ -62,7 +62,7 @@ namespace rv_xjtu_yangyan
             }
         }
 
-        void set_next_node(bool acceptable, automata_node *next)
+        void set_next_node(bool acceptable, automata_type *next)
         {
             is_acceptable = acceptable;
             next_node = next;
@@ -78,7 +78,7 @@ namespace rv_xjtu_yangyan
         bool is_negative;       //区分事件
         std::string event_name;
         std::vector<std::string> paras;
-        automata_node *next_node; 
+        automata_type *next_node; 
     };
 
     struct automata_node:automata_type
@@ -87,12 +87,16 @@ namespace rv_xjtu_yangyan
             :left_result("ambiguous"),right_result("ambiguous")
         {
             type = "node";
+            left_automata = NULL;
+            right_automata = NULL;
+            extra_automata = NULL;
         }
         std::string relationship;       //"and" "or"
         std::string left_result;        //"true" "false" "ambiguous"
         std::string right_result;       //"true" "false" "ambiguous"
         automata_type *left_automata;
         automata_type *right_automata;
+        automata_type *extra_automata;  //这个用于left和right中都不包含，但是会用到的情况。
     };
 
     struct automata_scope
@@ -244,7 +248,43 @@ namespace rv_xjtu_yangyan
             rv_an->right_automata = ast_expr_to_automata()(aue->subexpr);
             return rv_an;
         }
-            std::cerr << "自动机转化时遇到了没有定义的结点:" << aue->op_name << std::endl;
+        else if(aue->op_name == "N")
+        {
+            //N a = "true" & true 为了符合二叉表达的特点
+            automata_node *rv_an = new automata_node();
+
+            automata_leaf *l_true_al = new automata_leaf();
+            l_true_al->set_next_node(true, NULL);
+
+            automata_type *next_at = ast_expr_to_automata()(aue->subexpr);
+            automata_leaf *r_true_al = new automata_leaf();
+            r_true_al->set_next_node(false, next_at);
+
+            rv_an->relationship = "and";
+            rv_an->left_automata = l_true_al;
+            rv_an->right_automata = r_true_al;
+            rv_an->extra_automata = next_at;
+            return rv_an;
+        }
+        else if(aue->op_name == "X")
+        {
+            //X a = "true" & true 为了符合二叉表达的特点
+            automata_node *rv_an = new automata_node();
+
+            automata_leaf *l_true_al = new automata_leaf();
+            l_true_al->set_next_node(true, NULL);
+
+            automata_type *next_at = ast_expr_to_automata()(aue->subexpr);
+            automata_leaf *r_true_al = new automata_leaf();
+            r_true_al->set_next_node(true, next_at); //弱下一个，要设置成true，表示没有下一个也能结束
+
+            rv_an->relationship = "and";
+            rv_an->left_automata = l_true_al;
+            rv_an->right_automata = r_true_al;
+            rv_an->extra_automata = next_at;
+            return rv_an;
+        }
+        std::cerr << "自动机转化时遇到了没有定义的结点:" << aue->op_name << std::endl;
         return NULL;
     }
 

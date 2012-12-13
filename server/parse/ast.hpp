@@ -26,6 +26,7 @@ namespace rv_xjtu_yangyan
         if(op == "G"
             || op == "F"
             || op == "N"
+            || op == "X"
             || op == "~"
             || op == "NULL1")
             return true;
