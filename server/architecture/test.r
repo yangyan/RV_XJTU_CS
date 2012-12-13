@@ -1,8 +1,8 @@
 Rule test(rule1){
 	within("f_often()"){
 		key x;
-		"f_hello(x)" & (N ("f_world(x)" & (X (~"f_world(x)"))));
-	}solution_exit(x);
+		"f_malloc(x)" & (N ("f_free(x)" & (X (~"f_free(x)"))));
+	}solution_skipfree(x);
 }
 
 
