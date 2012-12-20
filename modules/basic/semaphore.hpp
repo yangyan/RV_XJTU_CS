@@ -1,3 +1,6 @@
+#ifndef SEMAPHORE_CLASS
+#define SEMAPHORE_CLASS
+
 #include  <iostream>
 
 #include <boost/thread/condition.hpp>
@@ -34,3 +37,5 @@ namespace rv_xjtu_yangyan
             }
     };
 }
+
+#endif

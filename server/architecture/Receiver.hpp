@@ -1,5 +1,5 @@
-#ifndef RECEIVER_HPP
-#define RECEIVER_HPP
+#ifndef RECEIVER_CLASS
+#define RECEIVER_CLASS
 
 #include  <iostream>
 
