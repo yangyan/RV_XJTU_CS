@@ -18,6 +18,7 @@
 #include    "../automata/reasonning.hpp"
 #include    "InterestEvents.hpp"
 #include    "Automata.hpp"
+#include    "Scope.hpp"
 
 namespace rv_xjtu_yangyan
 {
@@ -44,8 +45,11 @@ namespace rv_xjtu_yangyan
             for(vector<automata_type *>::iterator it = ar->automatas.begin();
                     it != ar->automatas.end(); it++)
             {
-                Automata a = Automata(ar->rule_name, *it);
-                automatas_.push_back(a);
+                scope_.appendScopeAutomatas(ar->rule_name, *it);
+                /*
+                 *Automata a = Automata(ar->rule_name, *it);
+                 *automatas_.push_back(a);
+                 */
             }
 
         }/*}}}*/
@@ -61,7 +65,6 @@ namespace rv_xjtu_yangyan
         void inputEvent(Event &event, Result &r)/*{{{*/
         {
             cout << event.eventName << endl;
-            //inputs_.push(event.eventName);
             inputs_.push(event);
             resultptr_ = &r;
             semInput_.notify();
@@ -78,16 +81,19 @@ namespace rv_xjtu_yangyan
                  *比如说信号之类的
                  */
                 semInput_.wait();
-                //string newEvent = inputs_.front();
+                //这里的事件分两类，其中一类是begin和end事件，即scope，另外一类是普通事件
                 Event newEvent = inputs_.front();
                 inputs_.pop();
                 //查找本自动机中所有的自动机
-                for(vector<Automata>::iterator it = automatas_.begin();
-                        it != automatas_.end(); it++)
-                {
-                    Automata &A = (*it);
-                    A.getSolutionAll(*resultptr_, newEvent);
-                }
+                scope_.buildScopeLevelAndGetSolutionAll(*resultptr_, newEvent);
+                /*
+                 *for(vector<Automata>::iterator it = automatas_.begin();
+                 *        it != automatas_.end(); it++)
+                 *{
+                 *    Automata &A = (*it);
+                 *    A.getSolutionAll(*resultptr_, newEvent);
+                 *}
+                 */
                 semFinish_.notify();
             }
         }/*}}}*/
@@ -98,8 +104,8 @@ namespace rv_xjtu_yangyan
         string programName;
 
     private:
-        vector<Automata> automatas_;
-        //queue<string> inputs_;
+        //vector<Automata> automatas_;
+        Scope scope_;
         queue<Event> inputs_;
         semaphore semInput_;
         semaphore semFinish_;

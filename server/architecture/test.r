@@ -11,6 +11,18 @@ Rule test(rule1){
 		key x;
 		"f_malloc(x)" -> (X ("f_free(x)" & (X ("f_free(x)" & (X (~"f_free(x)"))))));
 	}solution_skipfree(x);
+	within("f_main()"){
+		key x;
+		"f_malloc(x)"-> (X ("f_free(x)" & (X (~"f_free(x)"))));
+	}solution_skipfree(x);
+	within("f_main()"){
+		key x;
+		"f_malloc(x)" -> (X ("f_free(x)" & (X ("f_free(x)" & (X (~"f_free(x)"))))));
+	}solution_skipfree(x);
+	within("f_main()"){
+		key x;
+		"f_malloc(x)" -> (X ("f_free(x)" & (X ("f_free(x)" & (X ("f_free(x)" & (X (~"f_free(x)"))))))));
+	}solution_skipfree(x);
 }
 
 

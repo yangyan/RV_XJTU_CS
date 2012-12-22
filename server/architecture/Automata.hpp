@@ -115,6 +115,29 @@ namespace rv_xjtu_yangyan
                         return true;
                     }
 
+                    bool isKeyMatch(Event &event)
+                    {
+                        map<string, string> nvpair = interestEvents.getNameValuePair(event);
+                        if(nvpair.size() == 0) //说明这个事件不是关注事件，可能是开始或者结束事件
+                            return false;
+                        for(map<string, string>::iterator it = keyTable.begin();
+                                it != keyTable.end(); it++)
+                        {
+                            if((*it).second != "") //key表中该项不为空
+                            {
+                                if(nvpair.find((*it).first) != nvpair.end())//并且事件中也有该项
+                                {
+                                    if((*it).second != nvpair[(*it).first]) //如果两个值不相同，则不对
+                                        return false;
+                                }
+                            }
+                            else
+                            {
+                                return false;
+                            }
+                        }
+                        return true;
+                    }
                     bool isKeySatisfied(Event &event)
                     {
                         map<string, string> nvpair = interestEvents.getNameValuePair(event);

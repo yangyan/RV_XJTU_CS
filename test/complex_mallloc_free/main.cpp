@@ -27,6 +27,7 @@ int solution_free(vector<string> &args)
     return 0;
 }
 
+void often(int);
 
 ///////////////////////////////////////////////////////////////////////
 //面向切面的定义
@@ -85,7 +86,7 @@ aspect Often:public BeginEnd
     {
         functionName = "often";
     }
-    pointcut functions() = "void often()";
+    pointcut functions() = "void often(int)";
 };
 
 
@@ -123,18 +124,17 @@ aspect MallocFree
 
 int *ex;
 
-void often()
+void often(int n)
 {
     //b(3);
     free(ex);
     free(ex);
-    /*
-     *int *a = (int *)malloc(100);
-     *int *b = (int *)malloc(10);
-     *free(a);
-     *free(a);
-     *free(a);
-     */
+    int *a = (int *)malloc(100);
+    int *b = (int *)malloc(10);
+    free(a);
+    free(a);
+    free(a);
+    if(--n > 0) often(n);
 }
 
 
@@ -147,7 +147,7 @@ int main(int argc, char *argv[])
      *    sleep(1);
      */
     ex = (int *)malloc(10);
-        often();
+        often(2);
     /*
      *}
      */
