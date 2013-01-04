@@ -17,6 +17,7 @@
 #include    "../automata/automata.hpp"
 #include    "../automata/reasonning.hpp"
 #include    "InterestEvents.hpp"
+#include    "Action.hpp"
 
 namespace rv_xjtu_yangyan
 {
@@ -202,6 +203,46 @@ namespace rv_xjtu_yangyan
                         }
                         return rv;
                     }/*}}}*/
+
+                    //获取一个这个自动机对应的Action
+                    Action getAction()
+                    {
+                        Action action(automataType);
+                        return action;
+                    }
+
+                    //获取从Action中构造的事件，这里不保证Action是replace属性的
+                    vector<string> getActionEvents()
+                    {
+                        vector<string> rv;
+                        Action action(automataType);
+                        bool positive;
+                        string eventName;
+                        
+                        action.getEventName(positive, eventName);
+
+                        for(map<string, bool>::iterator it = eventStatus.begin();
+                                it != eventStatus.end(); it++)
+                        {
+                            if((*it).first == eventName)
+                            {
+                                if(positive == true)
+                                {
+                                    rv.push_back((*it).first);
+                                }
+                                else
+                                {
+                                    rv.push_back("~" + (*it).first);
+                                }
+                            }
+                            else
+                            {
+                                rv.push_back("~" + (*it).first);
+                            }
+                        }
+                        return rv;
+                    }
+
                     //设置变量状态
                     void fillVars(Event &event)/*{{{*/
                     {
@@ -434,7 +475,9 @@ namespace rv_xjtu_yangyan
                     return s;
                 }
 
+                //下面是正片
                 vector<string> nowEvents;
+                or_collection *old_oc = oc;
                 oc = or_satisfy_events(oc, events, ca.reasonResult, ca.terminalResult);
 
                 cout << "\n";
@@ -446,8 +489,40 @@ namespace rv_xjtu_yangyan
                     Solution s;
                     s.type = Solution::FUNCTION;
                     ca.setSolution(s);
-                    cout << "推理失败，停止" << endl;
-                    ca.terminalResult = true; //防止结尾的时候再次触发错误
+                    //cout << "推理失败，停止" << endl;
+                    //ca.terminalResult = true; //防止结尾的时候再次触发错误
+
+                    Action action = ca.getAction();
+                    if(action.isNothing)
+                    {
+                        //那就什么都不做
+                        cout << "推理失败，停止" << endl;
+                        ca.terminalResult = true; //防止结尾的时候再次触发错误
+                    }
+                    else if(action.isStop)
+                    {
+                        //那就什么都不做，其实和Nothing是一个样子的
+                        cout << "推理失败，停止" << endl;
+                        ca.terminalResult = true; //防止结尾的时候再次触发错误
+                    }
+                    else if(action.isIgnore)
+                    {
+                        //忽略当前推理的一步，回到过去，因此，terminalResult也保持不变
+                        oc = old_oc;
+                        cout << "推理失败，但是修复了，所以可以略过" << endl;
+                        ca.terminalResult = true; //防止结尾的时候再次触发错误
+                    }
+                    else if(action.isReplace)
+                    {
+                        //代替当前的事件，所以需要重新推理，但是不产生新的solution
+                        oc = old_oc;
+                        vector<string> actionEvents = ca.getActionEvents();
+                        //这里这样做可能不完善
+                        oc = or_satisfy_events(oc, actionEvents, ca.reasonResult, ca.terminalResult);
+                        cout << "推理失败，但是修复了，所以使用替代事件" << endl;
+                    }
+
+
                     return s;
                 }
                 else if(oc->ands.size() == 0)

@@ -206,13 +206,13 @@ namespace rv_xjtu_yangyan
             {
                 //需要销毁层次
                 getSolutionAll(result, newEvent);
-                if(scopeSequence.back().endEvent == newEvent.eventName)
+                if(scopeSequence.size() > 0 && scopeSequence.back().endEvent == newEvent.eventName)
                 {
                     scopeSequence.pop_back();
                 }
                 else
                 {
-                    cerr << "不匹配的Scope" << endl;
+                    cerr << "不匹配的Scope，可以忽略" << endl;
                 }
             }
             else

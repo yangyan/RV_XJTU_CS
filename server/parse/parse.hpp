@@ -90,12 +90,19 @@ namespace rv_xjtu_yangyan
         exLTL_para_list para_list;
     };
 
+    struct exLTL_action
+    {
+        std::string action_name;
+        exLTL_para_list para_list;
+    };
+
     struct exLTL_item
     {
         exLTL_scope_list scopelist;
         exLTL_key_var_list keyvarlist;
         exLTL_var_expr expr;
         exLTL_solution solution;
+        exLTL_action action;
     };
 
     struct exLTL_rule
@@ -130,6 +137,7 @@ BOOST_FUSION_ADAPT_STRUCT(
         (rv_xjtu_yangyan::exLTL_key_var_list, keyvarlist)
         (rv_xjtu_yangyan::exLTL_var_expr, expr)
         (rv_xjtu_yangyan::exLTL_solution, solution)
+        (rv_xjtu_yangyan::exLTL_action, action)
 )
 BOOST_FUSION_ADAPT_STRUCT(
         rv_xjtu_yangyan::exLTL_binary_expr,
@@ -171,6 +179,11 @@ BOOST_FUSION_ADAPT_STRUCT(
 BOOST_FUSION_ADAPT_STRUCT(
         rv_xjtu_yangyan::exLTL_solution,
         (std::string, solution_name)
+        (rv_xjtu_yangyan::exLTL_para_list, para_list)
+)
+BOOST_FUSION_ADAPT_STRUCT(
+        rv_xjtu_yangyan::exLTL_action,
+        (std::string, action_name)
         (rv_xjtu_yangyan::exLTL_para_list, para_list)
 )
 
@@ -342,6 +355,23 @@ namespace rv_xjtu_yangyan
             std::cout << ")";
         }
     };
+    struct exLTL_action_analyze
+    {
+        exLTL_action_analyze(){}
+
+        void operator()(exLTL_action const &action) const
+        {
+            std::cout << "ACTION: " << action.action_name;
+            std::cout << "(";
+            std::cout << " ";
+            BOOST_FOREACH(exLTL_var const &var, action.para_list.vars)
+            {
+                exLTL_var_analyze()(var);
+                std::cout << " ";
+            }
+            std::cout << ")";
+        }
+    };
 
     struct exLTL_item_analyze
     {
@@ -358,6 +388,7 @@ namespace rv_xjtu_yangyan
             boost::apply_visitor(exLTL_var_expr_analyze(indent+tabsize), item.expr);
             std::cout << std::endl;
             exLTL_solution_analyze()(item.solution);
+            exLTL_action_analyze()(item.action);
         }
 
         int indent;
@@ -444,7 +475,8 @@ namespace rv_xjtu_yangyan
             ////////////////////////////////////////////////////////////////
             using boost::spirit::_1;
             //关键变量定义，关键变量是指决定一个自动机是否唯一的变量
-            var = char_("a-zA-Z_") >> *char_("a-zA-Z_0-9");
+            var = char_("a-zA-Z_") [at_c<0>(_val) = _1]
+                >> *char_("a-zA-Z_0-9") [at_c<0>(_val) += _1];
             key_var_list = "key" 
                 >> -var     [push_back(at_c<0>(_val), _1)]
                 >> *(',' >> var [push_back(at_c<0>(_val), _1)]);
@@ -476,6 +508,10 @@ namespace rv_xjtu_yangyan
             solution_str = +char_("a-zA-Z_0-9");
             solution = solution_str >> para_list;
 
+            //推理采取措施
+            action_str = +char_("a-zA-Z_0-9");
+            action = action_str >> para_list;
+
             //有关作用域的定义
             scope_keyword = +char_("a-z");
             scope = scope_keyword >> '(' >> event >> ')';
@@ -489,7 +525,10 @@ namespace rv_xjtu_yangyan
                 >> key_var_list >> ';' 
                 >> var_expr >> ';'
                 >> '}' 
-                >> solution >> ';';
+                >> solution 
+                >> '&' >> '&'
+                >> action 
+                >> ';';
 
             //名称和规则结构定义
             name_str = +char_("a-zA-Z_0-9");
@@ -526,6 +565,8 @@ namespace rv_xjtu_yangyan
         qi::rule<Iterator, std::string(), ascii::space_type> name_str;
         qi::rule<Iterator, std::string(), ascii::space_type> solution_str;
         qi::rule<Iterator, exLTL_solution(), ascii::space_type> solution;
+        qi::rule<Iterator, std::string(), ascii::space_type> action_str;
+        qi::rule<Iterator, exLTL_action(), ascii::space_type> action;
 
         qi::rule<Iterator, exLTL_scope(), ascii::space_type> scope;
         qi::rule<Iterator, exLTL_scope_list(), ascii::space_type> scope_list;

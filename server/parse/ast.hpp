@@ -125,6 +125,14 @@ namespace rv_xjtu_yangyan
         std::vector<std::string> paras;
     };
 
+    struct ast_action
+    {
+        ast_action() {}
+
+        std::string action_name;
+        std::vector<std::string> paras;
+    };
+
     struct ast_item
     {
         ast_item()
@@ -136,6 +144,7 @@ namespace rv_xjtu_yangyan
         //ast_non_key_vars *nkeyvars;
         ast_expr *expr;
         ast_solution *solution;
+        ast_action *action;
     };
 
     struct ast_rule
@@ -311,6 +320,23 @@ namespace rv_xjtu_yangyan
 
     };
 
+    struct exLTL_action_to_ast
+    {
+        exLTL_action_to_ast(){}
+
+        ast_action *operator()(exLTL_action &action) const
+        {
+            ast_action *rvp = new ast_action();
+            rvp->action_name = action.action_name;
+            BOOST_FOREACH(exLTL_var &var, action.para_list.vars)
+            {
+                rvp->paras.push_back(var.var_name);
+            }
+            return rvp;
+        }
+
+    };
+
     struct exLTL_item_to_ast
     {
         exLTL_item_to_ast() { }
@@ -322,6 +348,7 @@ namespace rv_xjtu_yangyan
             rvp->keyvars  = exLTL_keyvars_to_ast()(item.keyvarlist);
             rvp->expr = boost::apply_visitor(exLTL_var_expr_to_ast(), item.expr);
             rvp->solution = exLTL_solution_to_ast()(item.solution);
+            rvp->action = exLTL_action_to_ast()(item.action);
             return rvp;
         }
     };
@@ -466,7 +493,22 @@ namespace rv_xjtu_yangyan
             std::cout << as->solution_name;
             BOOST_FOREACH(std::string &var, as->paras)
             {
-                std::cout << "#" << var;
+                std::cout << "#";
+                std::cout << var;
+            }
+        }
+    };
+
+    struct ast_action_printer
+    {
+        ast_action_printer() { }
+        void operator()(ast_action *as)
+        {
+            std::cout << as->action_name;
+            BOOST_FOREACH(std::string &var, as->paras)
+            {
+                std::cout << "#";
+                std::cout << var;
             }
         }
     };
@@ -483,6 +525,8 @@ namespace rv_xjtu_yangyan
             std::cout << std::endl;
             std::cout << "解决方法为：";
             ast_solution_printer()(ai->solution);
+            std::cout << "\n采取的行为为：";
+            ast_action_printer()(ai->action);
             std::cout << std::endl;
             std::cout << std::endl;
         }

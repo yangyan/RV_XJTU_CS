@@ -31,10 +31,17 @@ namespace rv_xjtu_yangyan
         std::vector<std::string> paras;
     };
 
+    struct automata_action
+    {
+        std::string action_name;
+        std::vector<std::string> paras;
+    };
+
     struct automata_type
     {
         std::string type;
         automata_solution *solution;
+        automata_action *action;
         automata_scope *scope;
         automata_key_vars *keyvar;
         automata_nonkey_vars *nonkeyvar;
@@ -397,6 +404,21 @@ namespace rv_xjtu_yangyan
         }
     };
 
+    struct ast_action_to_automata
+    {
+        ast_action_to_automata() { }
+        automata_action *operator()(ast_action *as)
+        {
+            automata_action *rv_as = new automata_action();
+            rv_as->action_name = as->action_name;
+            BOOST_FOREACH(std::string &para, as->paras)
+            {
+                rv_as->paras.push_back(para);
+            }
+            return rv_as;
+        }
+    };
+
     struct ast_item_to_automata
     {
         ast_item_to_automata() {}
@@ -405,6 +427,7 @@ namespace rv_xjtu_yangyan
             automata_type *rv;
             rv = ast_expr_to_automata()(ai->expr);
             rv->solution = ast_solution_to_automata()(ai->solution);
+            rv->action = ast_action_to_automata()(ai->action);
             rv->scope = ast_scope_to_automata()(ai->scope);
             rv->keyvar = ast_key_vars_to_automata()(ai->keyvars);
             rv->nonkeyvar = new automata_nonkey_vars();

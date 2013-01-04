@@ -1,8 +1,8 @@
 Rule test(test){
     within("f_main()")
     {
-        key x,y,z;
-        G "f_a(x,y,z)";
+        key xy,y,z;
+        G "f_a(xy,y,z)";
     }
-    exit(x,y);
+    exit(x,y) && over();
 }
