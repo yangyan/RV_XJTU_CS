@@ -49,6 +49,7 @@ aspect StartStopEventManager
 
         eh = create_new_event();
         event_set_event_name(eh, "f_main@end");
+        //event_set_func_name(eh, "f_main_end");
         publish_event(mh, eh);
 
         event_manager_stop(mh);
@@ -56,6 +57,7 @@ aspect StartStopEventManager
 
 };
 
+//Scope的抽象类
 aspect BeginEnd
 {
     pointcut virtual functions() = 0;
@@ -79,6 +81,7 @@ aspect BeginEnd
     string functionName;
 };
 
+//具体的一个Scope
 aspect Often:public BeginEnd
 {
     Often()
@@ -121,18 +124,22 @@ aspect MallocFree
     }
 };
 
+int *b;
+
 void often(int n)
 {
-    int *a = (int *)malloc(100);
-    free(a);
-    free(a);
-    free(a);
+    int *a = (int *)malloc(1024);
+    b = a;
 }
 
 
 
 int main(int argc, char *argv[])
 {
-    often(0);
+    while(true)
+    {
+        sleep(1);
+        often(0);
+    }
     return 0;
 }
