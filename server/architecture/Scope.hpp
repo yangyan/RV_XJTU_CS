@@ -101,7 +101,7 @@ namespace rv_xjtu_yangyan
             }
         }
 
-        void getSolutionRecursion(vector<ConcreteScope>::reverse_iterator &itThisCS, Result  &result, Event &newEvent)
+        void getSolutionRecursion(vector<ConcreteScope>::reverse_iterator itThisCS, Result  &result, Event &newEvent)
         {
             //如果已经结束了
             if(itThisCS == scopeSequence.rend())
@@ -218,7 +218,14 @@ namespace rv_xjtu_yangyan
             }
             else
             {
-                getSolutionAll(result, newEvent);
+                if(scopeSequence.size() > 0)
+                {
+                    getSolutionAll(result, newEvent);
+                }
+                else
+                {
+                    cerr << "这个事件不在一个Scope里，忽略" << endl;
+                }
             }
         }
     private:
