@@ -1,10 +1,13 @@
-#ifndef RV_ASPECTS.AH
-#define RV_ASPECTS.AH
+#ifndef RV_ASPECTS_AH
+#define RV_ASPECTS_AH
+
+#include  <iostream>
+#include  <vector>
 
 #include    "../../modules/event/event_api.h"
 
-ManagerHandle mh;
-EventHandle eh;
+extern ManagerHandle mh;
+extern EventHandle eh;
 
 aspect StartStopEventManagerAspect
 {

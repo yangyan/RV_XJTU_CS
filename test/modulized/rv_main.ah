@@ -1,6 +1,15 @@
-#include    "./rv_aspects.ah"
-#include    "./solution.hpp"
+#ifndef MAIN_HPP
+#define MAIN_HPP
 
+#include    "./rv_aspects.ah"
+
+using namespace std;
+
+//这里添加对解决函数的声明
+extern int solution_skipfree(vector<string> &);
+extern int solution_free(vector<string> &);
+
+//这里对程序的名称进行设定，并添加解决方案
 aspect MyStartStopEventManager:public StartStopEventManagerAspect
 {
     MyStartStopEventManager():
@@ -13,6 +22,7 @@ aspect MyStartStopEventManager:public StartStopEventManagerAspect
     }
 };
 
+//这里添加作用域事件
 aspect Often:public BeginEndAspect
 {
     Often():
@@ -22,6 +32,7 @@ aspect Often:public BeginEndAspect
 };
 
 
+//以下添加函数事件
 aspect Malloc:public EventAspect
 {
     pointcut functions() = "% malloc(...)";
@@ -41,6 +52,7 @@ aspect Malloc:public EventAspect
 
 };
 
+extern int skipfree;
 aspect Free:public EventAspect
 {
     pointcut functions() = "% free(...)";
@@ -61,3 +73,7 @@ aspect Free:public EventAspect
             DO_THIS_FUNCTION;
     }
 };
+
+//最后添加其他事件
+
+#endif

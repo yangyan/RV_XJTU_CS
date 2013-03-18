@@ -1,7 +1,5 @@
-#ifndef SOLUTION_HPP
-#define SOLUTION_HPP
-
 #include  <iostream>
+#include  <vector>
 #include  <cstdlib>
 using namespace std;
 
@@ -21,5 +19,3 @@ int solution_free(vector<string> &args)
     cout << ">>> Thanks to SFM!!! pointer " << p << " freed" << endl;
     return 0;
 }
-
-#endif
