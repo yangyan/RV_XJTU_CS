@@ -1,0 +1,245 @@
+Content-type: text/html
+
+<HTML><HEAD><TITLE>Manpage of FCRONTAB</TITLE>
+</HEAD><BODY>
+<H1>FCRONTAB</H1>
+Section: User Commands  (1)<BR>Updated: 12/25/2001<BR><A HREF="#index">Index</A>
+Return to Main Contents<HR>
+
+<P>
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+fcrontab - manipulate per-user fcrontab files
+<P>
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>fcrontab</B>
+
+[<B>-c</B> <B>f</B>] [<B>-n</B>]
+
+<I>file</I> [<I>user</I> | 
+
+<B>-u</B> 
+
+<I>user</I>]
+
+<BR>
+
+<B>fcrontab</B>
+
+[<B>-c</B> <B>f</B>] [<B>-n</B>]
+
+{ <B>-l</B> | <B>-r</B> | <B>-e</B> | <B>-z</B> }
+
+ [<I>user</I> | 
+
+<B>-u</B> 
+
+<I>user</I>]
+
+<BR>
+
+<BR>
+
+<B>fcrontab</B>
+
+ [<B>-h</B>]
+
+<P>
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+Fcrontab is the program intended to install, edit, list and remove the tables
+used by
+<B>fcron</B>(8)
+
+daemon. As fcron internally uses a non-human readable format (this is needed
+because fcron saves more informations than the user gives, for example
+the time and date of next execution), the user cannot edit directly
+his fcrontab (the one used by fcron).
+<P>
+
+When a user installs a fcrontab, the source file is saved in the spool
+directory 
+(<I>/var/spool/fcron</I>)
+
+to allow future editions, a formatted file is
+generated for the fcron daemon, which is signaled once about ten seconds before
+the next minute for all changes made previously. The daemon is not signaled
+immediately to keep ill disposed users from blocking the daemon by installing
+fcrontabs over and over.
+<BR>
+
+We will call &quot;fcrontab&quot; the source file of the fcrontab in the following.
+<P>
+
+A user can install a fcrontab if he is listed in the
+<I>/etc/fcron.allow</I>
+
+and not (unless by the keyword
+<I>all</I>) listed in <I>/etc/fcron.deny</I>
+
+(see section &quot;files&quot; below). If neither fcron.allow nor fcron.deny
+exist, every users are allowed. None of these files have to exist,
+but if they do, the deny file takes precedence.
+<P>
+
+The first form of the command is used to install a new fcrontab file,
+from any named file or from standard input if the pseudo-filename &quot;-&quot;
+is given, replacing the previous one (if any) : each user can have only one
+fcrontab.
+<P>
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-u</B>
+
+<DD>
+Specify the user whose fcrontab will be managed. Should only be used by root.
+If not given, the fcrontab file of the user invoking 
+<B>fcrontab(1)</B>
+
+will be handled. It may be useful since the
+<B>su</B>(8)
+
+command may confuse fcrontab.
+<BR>
+
+Note that the '<I>user</I>' in the synopsys
+
+is equivalent to a '<B>-u</B> 
+
+<I>user</I>'.
+
+<DT><B>-l</B>
+
+<DD>
+List user's current fcrontab to standard output.
+<DT><B>-e</B>
+
+<DD>
+Edit user's current fcrontab using either the editor specified by
+the environment variable
+<B>VISUAL</B>, or <B>EDITOR</B> if <B>VISUAL</B> is not set.
+
+If none or them are set, 
+<I>/bin/vi</I>
+
+will be used.
+<DT><B>-r</B>
+
+<DD>
+Remove user's fcrontab.
+<DT><B>-z</B>
+
+<DD>
+Reinstall user's fcrontab from its source code. All informations fcron may have
+kept in the binary fcrontab (such as the last execution time and date) will be
+forgotten.
+<DT><B>-n</B>
+
+<DD>
+Ignore previous version. If this option is not given, fcron will try to keep
+as much information as possible between old and new version of the fcrontab
+(time and date of next execution, if job is in serial queue, etc)
+if the line hasn't been modified (same fields, same shell command).
+<DT><B>-c f</B>
+
+<DD>
+Make fcrontab use config file f instead of default config file
+/etc/fcron.conf. To interact with a running fcron process, fcrontab
+must use the same config file as the process. That way, several fcron processes
+can run simultaneously on an only system.
+<DT><B>-d</B>
+
+<DD>
+Run in debug mode. In this mode, many informational messages will be output
+in order to check if anything went wrong.
+<DT><B>-h</B>
+
+<DD>
+Display a brief description of the options.
+<DT><B>-V</B>
+
+<DD>
+Display an informational message about fcrontab, including its version
+and the license under which it is distributed.
+<P>
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>RETURN VALUES</H2>
+
+Fcrontab returns 0 on normal exit and 1 on error.
+<P>
+<A NAME="lbAG">&nbsp;</A>
+<H2>CONFORMING TO</H2>
+
+Should be POSIX compliant. 
+<P>
+<A NAME="lbAH">&nbsp;</A>
+<H2>FILES</H2>
+
+<DL COMPACT>
+<DT><I>/etc/fcron.conf</I>
+
+<DD>
+Configuration file for fcron and fcrontab : contains paths (spool dir,
+pid file) and default programs to use (editor, shell, etc).
+See <B>fcron.conf</B>(5) for more details.
+
+<DT><I>/etc/fcron.allow</I>
+
+<DD>
+Users allowed to use fcrontab (one name per line, special name &quot;all&quot;
+acts for everyone)
+<DT><I>/etc/fcron.deny</I>
+
+<DD>
+Users who are not allowed to use fcrontab (same format as allow file)
+<DT><I>/etc/pam.d/fcrontab</I> (or <I>/etc/pam.conf</I>)
+
+<DD>
+PAM configuration file for fcrontab. Take a look at
+<B>pam</B>(8) for more details.
+
+<P>
+</DL>
+<A NAME="lbAI">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B>fcrontab</B>(5),
+
+<B>fcron</B>(8),
+
+<B>fcron.conf</B>(5).
+
+<P>
+<A NAME="lbAJ">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+Thibault Godouet &lt;<A HREF="mailto:fcron@free.fr">fcron@free.fr</A>&gt;
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">RETURN VALUES</A><DD>
+<DT><A HREF="#lbAG">CONFORMING TO</A><DD>
+<DT><A HREF="#lbAH">FILES</A><DD>
+<DT><A HREF="#lbAI">SEE ALSO</A><DD>
+<DT><A HREF="#lbAJ">AUTHOR</A><DD>
+</DL>
+<HR>
+This document was created by
+man2html,
+using the manual pages.<BR>
+Time: 13:50:56 GMT, December 25, 2001
+</BODY>
+</HTML>

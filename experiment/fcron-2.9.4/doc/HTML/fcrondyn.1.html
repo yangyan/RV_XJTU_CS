@@ -1,0 +1,1075 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML
+><HEAD
+><TITLE
+>fcrondyn</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.7"><LINK
+REL="HOME"
+TITLE="Fcron documentation"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Manual pages of fcron"
+HREF="manpages.html"><LINK
+REL="PREVIOUS"
+TITLE="fcrontab"
+HREF="fcrontab.5.html"><LINK
+REL="NEXT"
+TITLE="Frequently Asked Questions"
+HREF="faq.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="40%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="LEGALNOTICE.html"
+>Copyright</A
+> &copy; 2000-2004 <A
+HREF="mailto:fcron@free.fr"
+>Thibault Godouet</A
+></TD
+><TD
+WIDTH="20%"
+ALIGN="center"
+VALIGN="top"
+>Fcron 2.9.4  (dev release)</TD
+><TD
+WIDTH="40%"
+ALIGN="right"
+VALIGN="top"
+>Web page : <A
+HREF="http://fcron.free.fr"
+>http://fcron.free.fr</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Fcron documentation</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="fcrontab.5.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="faq.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="FCRONDYN.1"
+></A
+>fcrondyn</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN2287"
+></A
+><H2
+>Name</H2
+>fcrondyn&nbsp;--&nbsp;dialog dyn-amically with a running fcron daemon</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="FCRONDYN.1.SYNOPSIS"
+></A
+><H2
+>Synopsis</H2
+><P
+><B
+CLASS="COMMAND"
+>fcrondyn</B
+>  [-c <VAR
+CLASS="REPLACEABLE"
+>file</VAR
+>] [-i]</P
+><P
+><B
+CLASS="COMMAND"
+>fcrondyn</B
+>  [-c <VAR
+CLASS="REPLACEABLE"
+>file</VAR
+>]  -x <VAR
+CLASS="REPLACEABLE"
+>command</VAR
+> </P
+><P
+><B
+CLASS="COMMAND"
+>fcrondyn</B
+>  [-h]</P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN2305"
+></A
+><H2
+>Description</H2
+><P
+><SPAN
+CLASS="APPLICATION"
+>Fcrondyn</SPAN
+> is a user tool intended to interact with a running
+fcron daemon. It can, for instance, list user's jobs loaded by fcron, run one of
+them, renice a running job, send a signal to a running job, etc.</P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN2309"
+></A
+><H2
+>Options</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><B
+><VAR
+CLASS="OPTION"
+>-i</VAR
+></B
+></DT
+><DD
+><P
+>Run <SPAN
+CLASS="APPLICATION"
+>fcrondyn</SPAN
+> in interactive mode. <SPAN
+CLASS="APPLICATION"
+>fcrondyn</SPAN
+> is also
+		    run in interactive mode when no option is given.</P
+></DD
+><DT
+><B
+><VAR
+CLASS="OPTION"
+>-x</VAR
+>
+<VAR
+CLASS="REPLACEABLE"
+>command</VAR
+></B
+></DT
+><DD
+><P
+>Run <VAR
+CLASS="REPLACEABLE"
+>command</VAR
+> and returns
+immediately. <A
+HREF="fcrondyn.1.html#FCRONDYN.1.CMD.DESCP"
+>See below</A
+> for syntax
+and a list of commands.</P
+></DD
+><DT
+><B
+><VAR
+CLASS="OPTION"
+>-c</VAR
+> <VAR
+CLASS="REPLACEABLE"
+>file</VAR
+></B
+></DT
+><DD
+><P
+>Make <SPAN
+CLASS="APPLICATION"
+>fcrontab</SPAN
+> use config file
+<VAR
+CLASS="REPLACEABLE"
+>file</VAR
+> instead of default config file
+<TT
+CLASS="FILENAME"
+>/etc/fcron.conf</TT
+>. To interact with a running
+<SPAN
+CLASS="APPLICATION"
+>fcron</SPAN
+> process, <SPAN
+CLASS="APPLICATION"
+>fcrontab</SPAN
+> must use the same config file as the process. That
+way, several <SPAN
+CLASS="APPLICATION"
+>fcron</SPAN
+> processes can run simultaneously on an only system.</P
+></DD
+><DT
+><B
+><VAR
+CLASS="OPTION"
+>-d</VAR
+></B
+></DT
+><DD
+><P
+>Run in debug mode. In this mode, many informational
+messages will be output in order to check if anything went wrong.</P
+></DD
+><DT
+><B
+><VAR
+CLASS="OPTION"
+>-h</VAR
+></B
+></DT
+><DD
+><P
+>Display a brief description of the options.</P
+></DD
+><DT
+><B
+><VAR
+CLASS="OPTION"
+>-V</VAR
+></B
+></DT
+><DD
+><P
+>Display an informational message about <SPAN
+CLASS="APPLICATION"
+>fcrontab</SPAN
+>,
+including its version and the license under which it is distributed.</P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="FCRONDYN.1.CMD.DESCP"
+></A
+><H2
+>Command description</H2
+><P
+><SPAN
+CLASS="APPLICATION"
+>Fcrondyn</SPAN
+>'s command syntax is the following : </P
+><A
+NAME="AEN2359"
+></A
+><BLOCKQUOTE
+CLASS="BLOCKQUOTE"
+><P
+><B
+CLASS="COMMAND"
+>command</B
+> <VAR
+CLASS="REPLACEABLE"
+>arg1</VAR
+>
+<VAR
+CLASS="REPLACEABLE"
+>arg2</VAR
+> [...]</P
+></BLOCKQUOTE
+><P
+>An argument of a <SPAN
+CLASS="APPLICATION"
+>fcrondyn</SPAN
+> command is of one of the following
+type :</P
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><P
+><B
+>Argument types of <SPAN
+CLASS="APPLICATION"
+>fcrondyn</SPAN
+>'s commands</B
+></P
+><DL
+><DT
+><B
+><EM
+><SPAN
+CLASS="TYPE"
+>user</SPAN
+></EM
+></B
+></DT
+><DD
+><P
+>A valid user name.</P
+></DD
+><DT
+><B
+><EM
+><SPAN
+CLASS="TYPE"
+>jobid</SPAN
+></EM
+></B
+></DT
+><DD
+><P
+>A job id given by one of <SPAN
+CLASS="APPLICATION"
+>fcrondyn</SPAN
+>'s
+<B
+CLASS="COMMAND"
+>ls*</B
+> commands (i.e. an integer).</P
+></DD
+><DT
+><B
+><EM
+><SPAN
+CLASS="TYPE"
+>sig</SPAN
+></EM
+></B
+></DT
+><DD
+><P
+>A signal number, or its name (case does not matter).
+For instance, "term" or "15".</P
+></DD
+><DT
+><B
+><EM
+><SPAN
+CLASS="TYPE"
+>niceval</SPAN
+></EM
+></B
+></DT
+><DD
+><P
+>A job priority value. A
+<EM
+><SPAN
+CLASS="TYPE"
+>niceval</SPAN
+></EM
+> is an integer from -20 (highest
+priority) to 19 (lowest) (only root is allowed to use a negative value with this
+option).</P
+></DD
+></DL
+></DIV
+><P
+>Last, but not least, the following commands are recognized
+(optional arguments are between []) :</P
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><P
+><B
+>Valid <SPAN
+CLASS="APPLICATION"
+>fcrondyn</SPAN
+>'s commands</B
+></P
+><DL
+><DT
+><B
+><B
+CLASS="COMMAND"
+>help</B
+></B
+>, <B
+><B
+CLASS="COMMAND"
+>h</B
+></B
+></DT
+><DD
+><P
+>Print an help message about fcrondyn's
+commands.</P
+></DD
+><DT
+><B
+><B
+CLASS="COMMAND"
+>quit</B
+></B
+>, <B
+><B
+CLASS="COMMAND"
+>q</B
+></B
+></DT
+><DD
+><P
+>In interactive mode, quit fcrondyn.</P
+></DD
+><DT
+><B
+><B
+CLASS="COMMAND"
+>ls</B
+>
+[<EM
+><SPAN
+CLASS="TYPE"
+>user</SPAN
+></EM
+>]</B
+></DT
+><DD
+><P
+>List all jobs of user. When <B
+CLASS="COMMAND"
+>ls</B
+> is
+run by root, all users are listed unless a user name is given as argument. <A
+HREF="fcrondyn.1.html#FCRONDYN.1.LS.FIELDS"
+>See below</A
+> for some explanations about the
+fields used by <B
+CLASS="COMMAND"
+>ls*</B
+> commands.</P
+></DD
+><DT
+><B
+><B
+CLASS="COMMAND"
+>ls_lavgq</B
+>
+[<EM
+><SPAN
+CLASS="TYPE"
+>user</SPAN
+></EM
+>]</B
+></DT
+><DD
+><P
+>Same as <B
+CLASS="COMMAND"
+>ls</B
+>, but list only the jobs
+which are in the load-average queue (i.e. which are waiting for a lower load
+average to be run).</P
+></DD
+><DT
+><B
+><B
+CLASS="COMMAND"
+>ls_serialq</B
+>
+[<EM
+><SPAN
+CLASS="TYPE"
+>user</SPAN
+></EM
+>]</B
+></DT
+><DD
+><P
+>Same as <B
+CLASS="COMMAND"
+>ls</B
+>, but list only the jobs
+		    which are in the serial queue (i.e. which are waiting for
+		    other jobs to be finished).</P
+></DD
+><DT
+><B
+><B
+CLASS="COMMAND"
+>ls_exeq</B
+>
+[<EM
+><SPAN
+CLASS="TYPE"
+>user</SPAN
+></EM
+>]</B
+></DT
+><DD
+><P
+>Same as <B
+CLASS="COMMAND"
+>ls</B
+>, but list only the jobs
+		    which are running.</P
+></DD
+><DT
+><B
+><B
+CLASS="COMMAND"
+>detail</B
+>
+<EM
+><SPAN
+CLASS="TYPE"
+>jobid</SPAN
+></EM
+></B
+></DT
+><DD
+><P
+>Print details about a
+job. <EM
+><SPAN
+CLASS="TYPE"
+>jobid</SPAN
+></EM
+> is the one given by
+<B
+CLASS="COMMAND"
+>ls</B
+>.</P
+></DD
+><DT
+><B
+><B
+CLASS="COMMAND"
+>runnow</B
+>
+<EM
+><SPAN
+CLASS="TYPE"
+>jobid</SPAN
+></EM
+></B
+></DT
+><DD
+><P
+></P
+></DD
+><DT
+><B
+><B
+CLASS="COMMAND"
+>run</B
+>
+<EM
+><SPAN
+CLASS="TYPE"
+>jobid</SPAN
+></EM
+></B
+></DT
+><DD
+><P
+></P
+></DD
+><DT
+><B
+><B
+CLASS="COMMAND"
+>kill</B
+>
+<EM
+><SPAN
+CLASS="TYPE"
+>sig</SPAN
+></EM
+>
+<EM
+><SPAN
+CLASS="TYPE"
+>jobid</SPAN
+></EM
+></B
+></DT
+><DD
+><P
+>Send a signal to a running job.</P
+></DD
+><DT
+><B
+><B
+CLASS="COMMAND"
+>renice</B
+>
+<EM
+><SPAN
+CLASS="TYPE"
+>niceval</SPAN
+></EM
+>
+<EM
+><SPAN
+CLASS="TYPE"
+>jobid</SPAN
+></EM
+></B
+></DT
+><DD
+><P
+>Change the priority of a running job.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><P
+><B
+>Fields used by <B
+CLASS="COMMAND"
+>detail</B
+> and
+	    <B
+CLASS="COMMAND"
+>ls*</B
+> commands</B
+></P
+><DL
+><DT
+><B
+>ID</B
+></DT
+><DD
+><P
+>Job's unique identification number.</P
+></DD
+><DT
+><B
+>USER</B
+></DT
+><DD
+><P
+>User who owns this job.</P
+></DD
+><DT
+><B
+>PID</B
+></DT
+><DD
+><P
+>The pid of the running job.</P
+></DD
+><DT
+><B
+>INDEX</B
+></DT
+><DD
+><P
+>Index of the job in the serial queue (i.e. it will be run when all the jobs of an inferior index have been run)</P
+></DD
+><DT
+><B
+>R&#38;Q</B
+></DT
+><DD
+><P
+>The job has this number instances running or queued in
+serial or lavg queue.</P
+></DD
+><DT
+><B
+>OPTIONS</B
+></DT
+><DD
+><P
+>List of main options which are set. L for lavg jobs
+		    (LO if the job is also lavgonce), S for serial (SO if also
+		    serialone), ES for exesev jobs.</P
+></DD
+><DT
+><B
+>LAVG</B
+></DT
+><DD
+><P
+>3 values, corresponding to the 1, 5, and 15-minute (in
+		    this order) system load average values below which the job
+		    should be run (see <A
+HREF="fcrontab.5.html#FCRONTAB.5.LAVG"
+><VAR
+CLASS="VARNAME"
+>lavg</VAR
+></A
+> option).</P
+></DD
+><DT
+><B
+>UNTIL</B
+></DT
+><DD
+><P
+>Field corresponding to the <A
+HREF="fcrontab.5.html#FCRONTAB.5.UNTIL"
+><VAR
+CLASS="VARNAME"
+>until</VAR
+></A
+> option.</P
+></DD
+><DT
+><B
+>STRICT</B
+></DT
+><DD
+><P
+>Field corresponding to the <A
+HREF="fcrontab.5.html#FCRONTAB.5.STRICT"
+><VAR
+CLASS="VARNAME"
+>strict</VAR
+></A
+> option. Y for
+		    yes, N for no.</P
+></DD
+><DT
+><B
+>SCHEDULE</B
+></DT
+><DD
+><P
+>Next run is scheduled at this time and date.</P
+></DD
+><DT
+><B
+>CMD</B
+></DT
+><DD
+><P
+>The command that will be executed.</P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN2545"
+></A
+><H2
+>Return values</H2
+><P
+><SPAN
+CLASS="APPLICATION"
+>Fcrondyn</SPAN
+> returns 0 on normal exit and 1 on
+error.</P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN2549"
+></A
+><H2
+>Conforming to</H2
+><P
+>Should be POSIX compliant.</P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="FCRONDYN.1.FILES"
+></A
+><H2
+>Files</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><B
+><TT
+CLASS="FILENAME"
+>/etc/fcron.conf</TT
+></B
+></DT
+><DD
+><P
+>Configuration file for <SPAN
+CLASS="APPLICATION"
+>fcron</SPAN
+>, <SPAN
+CLASS="APPLICATION"
+>fcrontab</SPAN
+> and
+<SPAN
+CLASS="APPLICATION"
+>fcrondyn</SPAN
+> : contains paths (spool dir, pid file) and default programs to use
+(editor, shell, etc). See <A
+HREF="fcron.conf.5.html"
+><SPAN
+CLASS="SYSTEMITEM"
+>fcron.conf</SPAN
+>(5)</A
+>
+for more details.</P
+></DD
+><DT
+><B
+><TT
+CLASS="FILENAME"
+>/etc/fcron.allow</TT
+></B
+></DT
+><DD
+><P
+>Users allowed to use <SPAN
+CLASS="APPLICATION"
+>fcrontab</SPAN
+> and <SPAN
+CLASS="APPLICATION"
+>fcrondyn</SPAN
+> (one
+name per line, special name "all" acts for everyone)</P
+></DD
+><DT
+><B
+><TT
+CLASS="FILENAME"
+>/etc/fcron.deny</TT
+></B
+></DT
+><DD
+><P
+>Users who are not allowed to use <SPAN
+CLASS="APPLICATION"
+>fcrontab</SPAN
+> and
+<SPAN
+CLASS="APPLICATION"
+>fcrondyn</SPAN
+> (same format as allow file)</P
+></DD
+><DT
+><B
+><TT
+CLASS="FILENAME"
+>/etc/pam.d/fcron</TT
+> (or
+<TT
+CLASS="FILENAME"
+>/etc/pam.conf</TT
+>)</B
+></DT
+><DD
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PAM</SPAN
+> configuration file for
+<SPAN
+CLASS="APPLICATION"
+>fcron</SPAN
+>. Take a look at pam(8) for more details.</P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN2587"
+></A
+><H2
+>See also</H2
+><P
+></P
+><TABLE
+BORDER="0"
+><TBODY
+><TR
+><TD
+><A
+HREF="fcrontab.1.html"
+><SPAN
+CLASS="APPLICATION"
+>fcrontab</SPAN
+>(1)</A
+></TD
+></TR
+><TR
+><TD
+><A
+HREF="fcrondyn.1.html"
+><SPAN
+CLASS="APPLICATION"
+>fcrondyn</SPAN
+>(1)</A
+></TD
+></TR
+><TR
+><TD
+><A
+HREF="fcrontab.5.html"
+><SPAN
+CLASS="APPLICATION"
+>fcrontab</SPAN
+>(5)</A
+></TD
+></TR
+><TR
+><TD
+><A
+HREF="fcron.conf.5.html"
+><SPAN
+CLASS="SYSTEMITEM"
+>fcron.conf</SPAN
+>(5)</A
+></TD
+></TR
+><TR
+><TD
+><A
+HREF="fcron.8.html"
+><SPAN
+CLASS="APPLICATION"
+>fcron</SPAN
+>(8)</A
+></TD
+></TR
+><TR
+><TD
+>If you're learning how to use fcron from scratch, I suggest
+ that you read the HTML version of the documentation (if your are not reading it
+ right now ! :) ) : the content is the same, but it is easier to navigate thanks
+to the hyperlinks.</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN2606"
+></A
+><H2
+>Author</H2
+><P
+>Thibault Godouet <CODE
+CLASS="EMAIL"
+>&#60;<A
+HREF="mailto:fcron@free.fr"
+>fcron@free.fr</A
+>&#62;</CODE
+></P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="fcrontab.5.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="faq.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>fcrontab</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="manpages.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Frequently Asked Questions</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

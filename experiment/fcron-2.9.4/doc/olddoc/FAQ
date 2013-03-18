@@ -1,0 +1,99 @@
+FCRON - FAQ
+
+ $Id: FAQ,v 1.4 2001/10/29 13:18:22 thib Exp thib $
+
+<-- fcron version 2.1.0 -->
+
+Fcron is distributed under GPL license (please read the file LICENSE).
+
+Project home page : http://fcron.free.fr/
+
+Author : Thibault GODOUET <fcron@free.fr>
+
+-------------------------------------------------------------------------------
+
+This FAQ intends to complete the man pages by providing a more practical
+approach.
+If you think a QA should be added, please mail me it !
+
+
+Index :
+-----
+1) How does fcron handle system clock adjusts (daylight savings, etc) ?
+2) How can I use fcrontab in scripts ?
+3) How can I prevent fcrontab from considering the first word of my command
+   line as "runas(word)" ?
+4) I have a job which usually terminates with a non-zero status, and I receive
+   a mail with the exit status even if the command had no output : how can I
+   avoid that ?
+
+-------------------------------------------------------------------------------
+
+1) Q: How does fcron handle system clock adjusts (daylight savings, etc) ?
+      --------------------------------------------------------------------
+   A: First, you must know that fcron determines for each job the next time
+      and date of execution, and then, sleep until a job should be run.
+      In other words, fcron doesn't wake up like Vixie cron each minute
+      to check all job in case one should be run ... and it avoids some
+      problems concerning the clock adjusts.
+
+      That means that if the new time value is in the past, fcron won't run
+      jobs twice. For instance it is 3:00, so the next job cannot be schedule
+      before 3:00 (it would already has been run and re-scheduled), and you put
+      your clock at 2:00 : fcron will just sleep until the next job should be
+      executed, so after (and including) 3:01.
+
+      Now if you set the new time value in the future, fcron will run every
+      jobs between the old and the new time value once. When fcron wakes up
+      to run a job after the time value has changed, it runs all the jobs which
+      should have run during the interval because they are scheduled to run
+      in a past time.
+
+      You must also know that the @-jobs will run at "adjust-interval" too
+      early or too late depending of the nature of the adjust.
+
+      To conclude, fcron behaves quite well for small clock adjusts : each
+      job which should have run do run once, but not exactly at the correct
+      time if the job was scheduled in the interval of the adjust.
+      But if you have to make a big change in the time and date, you should
+      probably reset all the scheduled "nextexe" by running "fcrontab -z"
+      on all the fcrontabs.
+
+
+2) Q: How can I use fcrontab in scripts ?
+      -----------------------------------
+   A: You can use pipes with "fcrontab -l" (list the fcrontab) and "fcrontab -"
+      (read the new fcrontab from input). For example :
+      echo -e "`fcrontab -l | grep -v exim`\n0 * * * *	/usr/sbin/exim -q" \
+                  | fcrontab -
+      can be used to add a line. Another way to do it would be to 
+      list the fcrontab to a tmp file ("fcrontab -l > tmpfile"),
+      then modify that file ("echo $LINE >> tmpfile")
+      and finally replace the existing fcrontab by that one and remove
+      the tmp file ("fcrontab tmpfile ; rm -f tmpfile").
+
+
+3) Q: How can I prevent fcrontab from considering the first word of my command
+      line as "runas(word)" ?
+      ------------------------------------------------------------------------
+   A: Suppose you have an user called "echo" (weird idea ... :)) ).
+      If you use the line '* * * * * echo "Hello !"' in root's fcrontab,
+      "echo" will be interpreted as "runas(echo)".
+
+      To avoid that, put your command in quotes :
+        * * * * * 'echo "Hello !"'
+      will work as expected (quotes are allowed for the shell command but not
+      for the user name).
+
+
+4) Q: I have a job which usually terminates with a non-zero status, and I
+      receive a mail with the exit status even if the command had no output :
+      how can I avoid that ?
+      -----------------------------------------------------------------------
+   A: The easiest way is sure to set the option "mail" to "no".
+      But if you still want to receive the output if there is one, you can
+      add a command like "/bin/true" after your job to force the status
+      to be 0, without affecting your job nor creating an output.
+      For instance : "* * * * * /a/non/zero/status/job ; /bin/true".
+      
+

@@ -1,0 +1,249 @@
+Content-type: text/html
+
+<HTML><HEAD><TITLE>Manpage of FCRON</TITLE>
+</HEAD><BODY>
+<H1>FCRON</H1>
+Section: Maintenance Commands (8)<BR>Updated: 12/25/2001<BR><A HREF="#index">Index</A>
+Return to Main Contents<HR>
+
+<P>
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+fcron - daemon to execute scheduled commands
+<P>
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>fcron</B>
+
+[<I>-d</I>] [<I>-f</I>] [<I>-b</I>] [<I>-s</I> <I>t</I>] [<I>-m</I> <I>n</I>]
+
+[<I>-c</I> <I>f</I>]
+
+<BR>
+
+<B>fcron</B>
+
+[<I>-n</I> <I>d</I>]
+
+<BR>
+
+<B>fcron</B>
+
+[<I>-h</I>]
+
+<BR>
+
+<B>fcron</B>
+
+[<I>-V</I>]
+
+<P>
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+Fcron should be started from 
+<B>/etc/rc</B>
+
+or
+<B>/etc/rc.local.</B>
+
+Unless the 
+<I>-f </I>(or <I>--foreground</I>)
+
+option is given, it will return immediately, so you don't need to start it
+with '&amp;'.
+<P>
+
+Fcron loads users fcrontabs (see
+<B>fcrontab</B>(5)<B></B>)
+
+files previously installed by fcrontab (see 
+<B>fcrontab</B>(1)<B></B>).
+
+Then, fcron calculates the time and date of each job's next execution,
+and determines how long it has to sleep, and sleeps for this amount of time.
+When it wakes up, it checks all jobs loaded and runs them if needed.
+When a job is executed, fcron forks, changes its user and group permissions
+to match those of the user the job is being done for, executes that job and
+mails the outputs to the user (this can be changed : see 
+<B>fcrontab</B>(5)<B></B>).
+
+<P>
+
+Informative message about what fcron is doing are sent to 
+<B>syslogd</B>(8)<B> </B>under facility <B>cron</B>, priority <B>notice</B>.
+
+Warning and error messages are sent respectively at priority 
+<B>warning</B> and <B>error</B>.
+
+<P>
+
+Note that fcron sleeps at least 20 seconds after it has been
+started before executing a job to avoid to use too much resources during
+system boot.
+<P>
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-f --foreground</B>
+
+<DD>
+Don't fork to the background. In this mode, fcron will output informational
+message to standard error as well as to syslogd.
+<DT><B>-b --background</B>
+
+<DD>
+Force running in background, even if fcron has been compiled to run in
+foreground as default.
+<DT><B>-s t --savetime t</B>
+
+<DD>
+Save fcrontabs on disk every t sec (default is 1800).
+<DT><B>-m n --maxserial n</B>
+
+<DD>
+Set to n the maximum number of serial jobs which can run simultaneously.
+By default, this value is set to 1.
+<BR>
+
+<I>see also</I> :
+
+option<B> serial</B> in <B>fcrontab</B>(5).
+
+<DT><B>-c f --configfile f</B>
+
+<DD>
+Make fcron use config file f instead of default config file
+/etc/fcron.conf. To interact with that running fcron process, fcrontab
+must use the same config file (which is defined by fcrontab's option -c). That
+way, several fcron processes can run simultaneously on an only system
+(but each fcron process *must* have a different spool dir and pid file from
+the other processes).
+<DT><B>-n d --newspooldir d</B>
+
+<DD>
+Create d as a new spool directory for fcron. Set correctly its mode and owner.
+Then, exit.
+<DT><B>-h --help</B>
+
+<DD>
+Display a brief description of the options.
+<DT><B>-V --version</B>
+
+<DD>
+Display an informational message about fcron, including its version
+and the license under which it is distributed.
+<DT><B>-d --debug</B>
+
+<DD>
+Run in debug mode (more details on stderr (if option -f is set)
+and in log file)
+<P>
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>RETURN VALUES</H2>
+
+Fcron returns 0 on normal exit, and 1 on error.
+<P>
+<A NAME="lbAG">&nbsp;</A>
+<H2>SIGNALS</H2>
+
+<DL COMPACT>
+<DT><B>SIGTERM</B>
+
+<DD>
+Save configuration (time remaining until next execution, time and date
+of next execution, etc), wait for all running jobs and exit.
+<DT><B>SIGUSR1</B>
+
+<DD>
+Force fcron to reload its configuration.
+<DT><B>SIGUSR2</B>
+
+<DD>
+Make fcron print its current schedule on syslog.
+<BR>
+
+It also toggles on/off the printing on debug info on syslog.
+<DT><B>SIGHUP</B>
+
+<DD>
+Tell fcron to check if there is any configuration update (this signal is
+used by
+<B>fcrontab</B>(5)<B></B>)
+
+<P>
+</DL>
+<A NAME="lbAH">&nbsp;</A>
+<H2>CONFORMING TO</H2>
+
+Should be POSIX compliant. 
+<P>
+<A NAME="lbAI">&nbsp;</A>
+<H2>FILES</H2>
+
+<DL COMPACT>
+<DT><I>/etc/fcron.conf</I>
+
+<DD>
+Configuration file for fcron and fcrontab : contains paths (spool dir,
+pid file) and default programs to use (editor, shell, etc).
+See <B>fcron.conf</B>(5) for more details.
+
+<DT><I>/etc/fcron.allow</I>
+
+<DD>
+Users allowed to use fcrontab (one name per line, special name &quot;all&quot;
+acts for everyone)
+<DT><I>/etc/fcron.deny</I>
+
+<DD>
+Users who are not allowed to use fcrontab (same format as allow file)
+<DT><I>/etc/pam.d/fcron</I> (or <I>/etc/pam.conf</I>)
+
+<DD>
+PAM configuration file for fcron. Take a look at
+<B>pam</B>(8) for more details.
+
+<P>
+</DL>
+<A NAME="lbAJ">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B>fcron.conf</B>(5),
+
+<B>fcrontab</B>(1),
+
+<B>fcrontab</B>(5).
+
+<P>
+<A NAME="lbAK">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+Thibault Godouet &lt;<A HREF="mailto:fcron@free.fr">fcron@free.fr</A>&gt;
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">RETURN VALUES</A><DD>
+<DT><A HREF="#lbAG">SIGNALS</A><DD>
+<DT><A HREF="#lbAH">CONFORMING TO</A><DD>
+<DT><A HREF="#lbAI">FILES</A><DD>
+<DT><A HREF="#lbAJ">SEE ALSO</A><DD>
+<DT><A HREF="#lbAK">AUTHOR</A><DD>
+</DL>
+<HR>
+This document was created by
+man2html,
+using the manual pages.<BR>
+Time: 13:50:56 GMT, December 25, 2001
+</BODY>
+</HTML>

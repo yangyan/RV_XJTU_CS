@@ -1,0 +1,163 @@
+Content-type: text/html
+
+<HTML><HEAD><TITLE>Manpage of FCRON.CONF</TITLE>
+</HEAD><BODY>
+<H1>FCRON.CONF</H1>
+Section: File Formats (5)<BR>Updated: 12/25/2001<BR><A HREF="#index">Index</A>
+Return to Main Contents<HR>
+
+<P>
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+fcron.conf - configuration file for fcron and fcrontab
+<P>
+<A NAME="lbAC">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+This page describes the syntax used for the configuration file of 
+<B>fcrontab</B>(1).
+
+<P>
+
+Blank lines, line beginning by a pound-sign (#) (which are considered
+comments), leading blanks and tabs are ignored. Each line in a fcron.conf file
+is of the form
+<P>
+
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;name&nbsp;=&nbsp;value
+<P>
+
+where the blanks around equal-sign (=) are ignored and optional. Trailing
+blanks are also ignored.
+<P>
+
+The following names are recognized (default value in brackets) :
+<P>
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT><B>fcrontabs</B>
+
+<DD>
+<I>directory</I> (/var/spool/fcron)
+
+<BR>
+
+Fcron spool directory.
+<DT><B>pidfile</B>
+
+<DD>
+<I>file-path</I> (/var/run/fcron.pid)
+
+<BR>
+
+Location of fcron pid file (needed by fcrontab to work properly).
+<DT><B>fcronallow</B>
+
+<DD>
+<I>file-path</I> (/etc/fcron.allow)
+
+<BR>
+
+Location of fcron.allow file.
+<DT><B>fcrondeny</B>
+
+<DD>
+<I>file-path</I> (/etc/fcron.deny)
+
+<BR>
+
+Location of fcron.deny file.
+<DT><B>shell</B>
+
+<DD>
+<I>file-path</I> (/bin/sh)
+
+<BR>
+
+Location of default shell called by fcron when running a job.
+<DT><B>sendmail</B>
+
+<DD>
+<I>file-path</I> (/usr/lib/sendmail)
+
+<BR>
+
+Location of mailer program called by fcron to send job output.
+<DT><B>editor</B>
+
+<DD>
+<I>file-path</I> (/bin/vi)
+
+<BR>
+
+Location of default editor used when invoking &quot;fcrontab -e&quot;.
+</DL>
+</DL>
+
+<P>
+
+File-paths and directories are complete and absolute (i.e. beginning by a &quot;/&quot;).
+<P>
+
+To run several instances of fcron simultaneously on the same system, you must
+use a different configuration file for each instance. Each instance must
+have a different
+<B>fcrontabs</B> and <B>pidfile</B>.
+
+Then, use <B>fcron</B>(8)'s command line option
+
+<I>-c</I> to select which config file (so which instance) you refer to.
+
+<P>
+<A NAME="lbAD">&nbsp;</A>
+<H2>FILES</H2>
+
+<DL COMPACT>
+<DT><I>/etc/fcron.conf</I>
+
+<DD>
+Default location for the configuration file of fcron and fcrontab.
+<DT><I>/etc/fcron.allow</I>
+
+<DD>
+Users allowed to use fcrontab (one name per line, special name &quot;all&quot;
+acts for everyone)
+<DT><I>/etc/fcron.deny</I>
+
+<DD>
+Users who are not allowed to use fcrontab (same format as allow file)
+<P>
+</DL>
+<A NAME="lbAE">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B>fcron</B>(8),
+
+<B>fcrontab</B>(1),
+
+<B>fcrontab</B>(5).
+
+<P>
+<A NAME="lbAF">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+Thibault Godouet &lt;<A HREF="mailto:fcron@free.fr">fcron@free.fr</A>&gt;
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAD">FILES</A><DD>
+<DT><A HREF="#lbAE">SEE ALSO</A><DD>
+<DT><A HREF="#lbAF">AUTHOR</A><DD>
+</DL>
+<HR>
+This document was created by
+man2html,
+using the manual pages.<BR>
+Time: 13:50:56 GMT, December 25, 2001
+</BODY>
+</HTML>

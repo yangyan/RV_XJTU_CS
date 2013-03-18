@@ -101,7 +101,7 @@ namespace rv_xjtu_yangyan
             }
         }
 
-        void getSolutionRecursion(vector<ConcreteScope>::reverse_iterator itThisCS, Result  &result, Event &newEvent)
+        void getSolutionRecursion(vector<ConcreteScope>::reverse_iterator &itThisCS, Result  &result, Event &newEvent)
         {
             //如果已经结束了
             if(itThisCS == scopeSequence.rend())
@@ -168,7 +168,8 @@ namespace rv_xjtu_yangyan
             {
                 //情况4
                 cout << "情况4" << endl;
-                getSolutionRecursion(itThisCS++, result, newEvent);
+                itThisCS++;
+                getSolutionRecursion(itThisCS, result, newEvent);
             }
         }
         void getSolutionAll(Result &result, Event &newEvent)

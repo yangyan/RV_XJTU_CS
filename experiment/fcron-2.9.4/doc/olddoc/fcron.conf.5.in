@@ -1,0 +1,110 @@
+.\"/*
+.\" * FCRON - periodic command scheduler 
+.\" *
+.\" *  Copyright 2000-2002 Thibault Godouet <fcron@free.fr>
+.\" *
+.\" *  This program is free software; you can redistribute it and/or modify
+.\" *  it under the terms of the GNU General Public License as published by
+.\" *  the Free Software Foundation; either version 2 of the License, or
+.\" *  (at your option) any later version.
+.\" *
+.\" *  This program is distributed in the hope that it will be useful,
+.\" *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" *  GNU General Public License for more details.
+.\" * 
+.\" *  You should have received a copy of the GNU General Public License
+.\" *  along with this program; if not, write to the Free Software
+.\" *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+.\" * 
+.\" *  The GNU General Public License can also be found in the file
+.\" *  `LICENSE' that comes with the fcron source distribution.
+.\" */
+.\"
+.\" /* $Id: fcron.conf.5.in,v 1.5 2001/12/23 12:37:49 thib Exp thib $ */
+.TH FCRON.CONF 5 "@@Date@" "fcron version @@VERSION@"
+
+.SH NAME
+fcron.conf \- configuration file for fcron and fcrontab
+
+.SH DESCRIPTION
+This page describes the syntax used for the configuration file of 
+.BR fcron "(8) and " fcrontab "(1)."
+.PP
+Blank lines, line beginning by a pound-sign (#) (which are considered
+comments), leading blanks and tabs are ignored. Each line in a fcron.conf file
+is of the form
+.PP
+    name = value
+.PP 
+where the blanks around equal-sign (=) are ignored and optional. Trailing
+blanks are also ignored.
+.PP
+The following names are recognized (default value in brackets) :
+
+.RS 2
+.TP 12
+.B fcrontabs
+.IR directory " (@@FCRONTABS@)"
+.br
+Fcron spool directory.
+.TP
+.B pidfile
+.IR file-path " (@@PIDFILE@)"
+.br
+Location of fcron pid file (needed by fcrontab to work properly).
+.TP
+.B fcronallow
+.IR file-path " (@@ETC@/@@FCRON_ALLOW@)"
+.br
+Location of fcron.allow file.
+.TP
+.B fcrondeny
+.IR file-path " (@@ETC@/@@FCRON_DENY@)"
+.br
+Location of fcron.deny file.
+.TP
+.B shell
+.IR file-path " (@@SHELL@)"
+.br
+Location of default shell called by fcron when running a job.
+.TP
+.B sendmail
+.IR file-path " (@@SENDMAIL@)"
+.br
+Location of mailer program called by fcron to send job output.
+.TP
+.B editor
+.IR file-path " (@@EDITOR@)"
+.br
+Location of default editor used when invoking "fcrontab -e".
+.RE
+.PP
+File-paths and directories are complete and absolute (i.e. beginning by a "/").
+.PP
+To run several instances of fcron simultaneously on the same system, you must
+use a different configuration file for each instance. Each instance must
+have a different
+.BR fcrontabs " and " pidfile "."
+.RB "Then, use " fcrontab "(1) and " fcron "(8)'s command line option"
+.IR "-c" " to select which config file (so which instance) you refer to."
+
+.SH FILES
+.TP
+.I @@ETC@/@@FCRON_CONF@
+Default location for the configuration file of fcron and fcrontab.
+.TP
+.I @@ETC@/@@FCRON_ALLOW@
+Users allowed to use fcrontab (one name per line, special name "all"
+acts for everyone)
+.TP
+.I @@ETC@/@@FCRON_DENY@
+Users who are not allowed to use fcrontab (same format as allow file)
+
+.SH "SEE ALSO"
+.BR fcron "(8),"
+.BR fcrontab "(1),"
+.BR fcrontab "(5)."
+
+.SH AUTHOR
+Thibault Godouet <fcron@free.fr>

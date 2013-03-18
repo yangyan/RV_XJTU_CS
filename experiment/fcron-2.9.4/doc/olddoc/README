@@ -1,0 +1,109 @@
+FCRON - README
+
+ $Id: README,v 1.44 2001/11/04 18:55:01 thib Exp thib $
+
+<-- fcron version 2.1.0 -->
+
+Fcron is distributed under GPL license (please read the file LICENSE).
+
+Project home page : http://fcron.free.fr/
+
+Author : Thibault GODOUET <fcron@free.fr>
+
+
+-------------------------------------------------------------------------------
+
+Note : The versions of fcron are of the form x.y.z .
+----   Every versions where y is an odd number are *development* releases
+       (i.e. 1.1.0 is a development release while 1.2.0 is a stable release),
+       so they may contain more bugs (and uglier ones :)) ) than stable
+       releases.
+
+       Versions where y is an even number are considered as stable.
+-------------------------------------------------------------------------------
+
+
+	What is fcron ?
+	---------------
+
+Fcron is a scheduler. It aims at replacing Vixie Cron, so it implements most
+of its functionalities.
+
+But contrary to Vixie Cron, fcron does not need your system to be up 7 days
+a week, 24 hours a day : it also works well with systems which are
+not running neither all the time nor regularly (contrary to anacrontab).
+
+In other words, fcron does both the job of Vixie Cron and anacron, but does
+even more and better :)) ...
+
+To do so, fcron allows you to use the standard mode in which you tell
+it to execute one command at a given date and hour and to make it run
+a command according to its time of execution, which is normally the same as
+system up time. For example :
+
+	Run the task 'save /home/ directory'
+	every 3h15 of system up time.
+
+and, of course, in order to make it really useful, the time remaining until
+next execution is saved each time the system is stopped.
+
+You can also say :
+	
+	run that command once between 2am and 5am
+
+which will be done if the system is running at any time in this interval.
+
+Fcron also includes a useful system of options, which can be applied either to
+every lines following the declaration or to a single line. Some of
+the supported options permit to: 
+ - run jobs one by one,
+ - set the max system load average value under which the job should be run,
+ - set a nice value for a job,
+ - run jobs at fcron's startup if they should have been run
+   during system down time,
+ - mail user to tell him a job has not run and why,
+ - a better management of the mailing of outputs ...
+
+
+	Requirements
+	------------
+
+ - a Linux/Unix system
+Fcron should work on every POSIX system, but it has been developed
+on Mandrake Linux (so it should work without any problems on Redhat).
+Fcron 2.1.0 has been reported to work correctly on :
+	- Mandrake 8.0
+	- Debian 2.2
+	- LFS-2.3+ (take a look at http://archive.linuxfromscratch.org/lfs-hints/fcrond-hint.txt for the installation informations)
+	- FreeBSD 4.2
+	- OpenBSD 2.8
+	- Solaris 8
+	- AIX 4.3.3
+(but should work on many more systems thanks to configure script)
+Anyway, if you have troubles making it work on a POSIX system, please
+contact me at <fcron@free.fr>.
+
+ - a running syslog (or you won't have any log)
+ - a running mail system (sendmail or postfix for example)
+	(or users will not able to read their jobs output)
+ - (optional) a PAM library.
+
+	Compilation and installation
+	----------------------------
+
+See the INSTALL file.
+
+
+	Configuration
+	-------------
+
+See the fcron(8), fcrontab(5) and fcrontab(1) manpages.
+
+
+	Bug reports, corrections, propositions...
+	-----------------------------------------
+
+Please send me the description of any bug you happen to encounter (with, even
+better, the corresponding patch -:) and any propositions, congratulations or
+flames at
+	<fcron@free.fr>

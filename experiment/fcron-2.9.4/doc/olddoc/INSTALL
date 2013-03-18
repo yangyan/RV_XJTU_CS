@@ -1,0 +1,76 @@
+FCRON - INSTALL
+
+ $Id: INSTALL,v 1.38 2001/11/04 18:56:17 thib Exp thib $
+
+<-- fcron version 2.1.0 -->
+
+Fcron is distributed under GPL license (please read the file LICENSE).
+
+Project home page : http://fcron.free.fr/
+
+Author : Thibault GODOUET <fcron@free.fr>
+
+
+To install fcron on your system :
+---------------------------------
+
+ - uncompress the archive :
+	tar -xzf fcron-X.Y.Z.src.tar.gz
+
+ - cd to the archive directory
+	cd fcron-X.Y.Z
+
+ - run the configure script :
+	./configure
+
+   Notes : The command "make install" asks you by default some questions
+           you have to answer. To avoid that (which can be useful for automatic
+           installers), you can use the ./configure's option --with-answer-all
+           (see "./configure --help" for more details).
+
+           You may also want to change the place where fcron will be installed:
+           you can use the configure's option --prefix to do that.
+           For instance : ./configure --prefix=/usr/local
+           (default is prefix=/usr)
+
+           To disable the use of PAM, use configure's option --with-pam=no.
+
+           To debug fcron, you should use configure's option --with-debug .
+
+           You can get info on the others configure's options by running
+           "./configure --help".
+
+   Warning : The configure script may not define a correct directory
+             for the man pages and the documentation on some systems.
+             You may check the values defined by configure and if necessary
+             force a value by the options --mandir and -with-docdir
+             (see the help by running "./configure --help").
+
+             If you get older fcron's man-pages with "man" command after having
+             upgraded, it's probably because fcron has changed its default man
+             directory : you should remove manually the outdated man-pages.
+
+             The Makefile has been designed for GNU make. Some other version
+             of make may fail to use it.
+
+ - check the file config.h, and change it if necessary
+   (the configurable part is on the top of the file and clearly delimited).
+
+ - compile :
+	make
+
+ - then install binaries as root :
+	su root
+	make install
+
+You can now run fcron and fcrontab.
+
+Notes : 
+	This is a POSIX conforming software. You must have a POSIX compiler
+	(gcc for example) in order to compile it.
+
+	This software has been written for GNU/Linux systems. If you want
+	to port	it on an other Unix platform (thank you if you do it), try
+	to modify - if possible - only the configure script.
+	Please send me any modifications at <fcron@free.fr> in order
+	to include it in future releases.

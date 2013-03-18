@@ -1,0 +1,75 @@
+#!/bin/sh
+#
+# chkconfig: 2345 40 60
+# description: fcron is a scheduler especially useful for people \
+#              who are not running their system all the time.
+# processname: fcron
+# pidfile: /var/run/fcron.pid
+# config: /var/spool/fcron/*
+# $Id: sysVinit-launcher,v 1.9 2003/12/25 22:52:10 thib Exp thib $
+
+export PATH="/sbin:/usr/sbin:/bin:/usr/bin:/usr/X11R6/bin"
+
+FUNCTION=0
+SBIN=@@DESTSBIN@
+
+# Source function library.
+if test -f /etc/rc.d/init.d/functions; then
+    . /etc/rc.d/init.d/functions
+    STARTCMD="daemon $SBIN/fcron -b"
+    STOPCMD="killproc fcron"
+    FINALECHO="echo"
+elif start-stop-daemon --version > /dev/null; then
+    STARTCMD="start-stop-daemon --start --quiet --exec $SBIN/fcron -- -b"
+    STOPCMD="start-stop-daemon --stop --quiet --exec $SBIN/fcron"
+    FINALECHO="echo ."
+else
+    STARTCMD="$SBIN/fcron -b"
+    STOPCMD="killall -TERM $SBIN/fcron"
+    FINALECHO="echo ."
+fi
+
+RETVAL=0
+
+
+#  See how we were called.
+case "$1" in
+  start)
+	echo -n "Starting fcron"
+	$STARTCMD
+	RETVAL=$?
+	if test -d /var/lock/subsys/; then
+	    [ $RETVAL -eq 0 ] && touch /var/lock/subsys/fcron
+	fi
+	$FINALECHO
+	;;
+  stop)
+	echo -n "Shutting down fcron"
+	$STOPCMD
+	RETVAL=$?
+	if test -d /var/lock/subsys/; then
+	    [ $RETVAL -eq 0 ] && rm -f /var/lock/subsys/fcron
+	fi
+	$FINALECHO
+	;;
+  status)
+	if test $FUNCTION -eq 1; then
+	    status fcron
+	fi
+	RETVAL=$?
+	;;
+  restart)
+	$0 stop
+	$0 start
+	RETVAL=$?
+	;;
+  reload)
+	killall -HUP fcron
+	RETVAL=$?
+	;;        
+  *)
+	echo "Usage: fcron {start|stop|status|restart}"
+	exit 1
+esac
+
+exit $RETVAL

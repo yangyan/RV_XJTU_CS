@@ -1,0 +1,26 @@
+FCRON - THANKS
+
+Uwe Ohse <uwe@ohse.de>
+	Corrected a bug concerning the signals, has reported security issues.
+
+Max Heijndijk <cchq@wanadoo.nl>
+	Has made the rpm packages.
+
+Gabor Z. Papp <gzp@papp.hu>
+	Helped to correct some bugs in installation process and reported
+	various bugs.
+
+Clemens Fischer <rabat@web.de>
+	Proofread docs, reported bugs, and made some propositions.
+
+Henrique de Moraes Holschuh <hmh@debian.org>
+	Has worked on fcron's integration in Linux Debian system, reported
+	bugs and corrected some of them, made some propositions.
+
+Thomas Whateley <thomas@whateley.net>
+	Has done a big part of Solaris port, implemented the fcron.conf file,
+	and Vixie crontab format support.
+
+Guy Geens <ggeens@iname.com>
+	Fixed a nasty bug in goto_non_matching() which caused an endless loop
+	(midmonthly jobs executed after the 15th of the month).

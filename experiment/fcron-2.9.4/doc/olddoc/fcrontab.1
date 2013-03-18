@@ -1,0 +1,167 @@
+.\"/*
+.\" * FCRON - periodic command scheduler 
+.\" *
+.\" *  Copyright 2000-2002 Thibault Godouet <fcron@free.fr>
+.\" *
+.\" *  This program is free software; you can redistribute it and/or modify
+.\" *  it under the terms of the GNU General Public License as published by
+.\" *  the Free Software Foundation; either version 2 of the License, or
+.\" *  (at your option) any later version.
+.\" *
+.\" *  This program is distributed in the hope that it will be useful,
+.\" *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" *  GNU General Public License for more details.
+.\" * 
+.\" *  You should have received a copy of the GNU General Public License
+.\" *  along with this program; if not, write to the Free Software
+.\" *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+.\" * 
+.\" *  The GNU General Public License can also be found in the file
+.\" *  `LICENSE' that comes with the fcron source distribution.
+.\" */
+.\"
+.\" /* $Id: fcrontab.1,v 1.1 2002/01/03 14:27:57 thib Exp thib $ */
+.TH FCRONTAB 1 "12/25/2001" "fcron version 2.1.0"
+
+.SH NAME
+fcrontab \- manipulate per-user fcrontab files
+
+.SH SYNOPSIS
+.B fcrontab
+.RB "[" "-c" " " "f" "] [" "-n" "]"
+.IR file " [" user " | "
+.BR -u " "
+.IR user ]
+.br
+.B fcrontab
+.RB "[" "-c" " " "f" "] [" "-n" "]"
+.RB "{ " "-l" " | " "-r" " | " "-e" " | " "-z" " }"
+.RI " [" user " | "
+.BR -u " "
+.IR user ]
+.br
+.br
+.B fcrontab
+.RB " [" "-h" "]"
+
+.SH DESCRIPTION
+Fcrontab is the program intended to install, edit, list and remove the tables
+used by
+.BR fcron (8)
+daemon. As fcron internally uses a non-human readable format (this is needed
+because fcron saves more informations than the user gives, for example
+the time and date of next execution), the user cannot edit directly
+his fcrontab (the one used by fcron).
+.PP
+When a user installs a fcrontab, the source file is saved in the spool
+directory 
+.RI ( /var/spool/fcron )
+to allow future editions, a formatted file is
+generated for the fcron daemon, which is signaled once about ten seconds before
+the next minute for all changes made previously. The daemon is not signaled
+immediately to keep ill disposed users from blocking the daemon by installing
+fcrontabs over and over.
+.br
+We will call "fcrontab" the source file of the fcrontab in the following.
+.PP
+A user can install a fcrontab if he is listed in the
+.I /etc/fcron.allow
+and not (unless by the keyword
+.IR all ") listed in " /etc/fcron.deny
+(see section "files" below). If neither fcron.allow nor fcron.deny
+exist, every users are allowed. None of these files have to exist,
+but if they do, the deny file takes precedence.
+.PP
+The first form of the command is used to install a new fcrontab file,
+from any named file or from standard input if the pseudo-filename "-"
+is given, replacing the previous one (if any) : each user can have only one
+fcrontab.
+
+.SH OPTIONS
+.TP
+.B -u
+Specify the user whose fcrontab will be managed. Should only be used by root.
+If not given, the fcrontab file of the user invoking 
+.BR fcrontab(1) 
+will be handled. It may be useful since the
+.BR su (8)
+command may confuse fcrontab.
+.br
+.RI "Note that the '" user "' in the synopsys"
+.RB "is equivalent to a '" "-u" " "
+.IR user '.
+.TP
+.B -l
+List user's current fcrontab to standard output.
+.TP
+.B -e
+Edit user's current fcrontab using either the editor specified by
+the environment variable
+.BR VISUAL ", or " EDITOR " if " VISUAL " is not set."
+If none or them are set, 
+.I /bin/vi
+will be used.
+.TP
+.B -r
+Remove user's fcrontab.
+.TP
+.B -z
+Reinstall user's fcrontab from its source code. All informations fcron may have
+kept in the binary fcrontab (such as the last execution time and date) will be
+forgotten.
+.TP
+.B -n
+Ignore previous version. If this option is not given, fcron will try to keep
+as much information as possible between old and new version of the fcrontab
+(time and date of next execution, if job is in serial queue, etc)
+if the line hasn't been modified (same fields, same shell command).
+.TP
+.B -c f
+Make fcrontab use config file f instead of default config file
+/etc/fcron.conf. To interact with a running fcron process, fcrontab
+must use the same config file as the process. That way, several fcron processes
+can run simultaneously on an only system.
+.TP
+.B -d
+Run in debug mode. In this mode, many informational messages will be output
+in order to check if anything went wrong.
+.TP
+.B -h
+Display a brief description of the options.
+.TP
+.B -V
+Display an informational message about fcrontab, including its version
+and the license under which it is distributed.
+
+.SH RETURN VALUES
+Fcrontab returns 0 on normal exit and 1 on error.
+
+.SH CONFORMING TO
+Should be POSIX compliant. 
+
+.SH FILES
+.TP
+.I /etc/fcron.conf
+Configuration file for fcron and fcrontab : contains paths (spool dir,
+pid file) and default programs to use (editor, shell, etc).
+.RB "See " fcron.conf "(5) for more details."
+.TP
+.I /etc/fcron.allow
+Users allowed to use fcrontab (one name per line, special name "all"
+acts for everyone)
+.TP
+.I /etc/fcron.deny
+Users who are not allowed to use fcrontab (same format as allow file)
+.TP
+.IR /etc/pam.d/fcrontab " (or " /etc/pam.conf ")"
+PAM configuration file for fcrontab. Take a look at
+.BR pam "(8) for more details."
+
+.SH "SEE ALSO"
+.BR fcrontab "(5),"
+.BR fcron "(8),"
+.BR fcron.conf "(5)."
+
+.SH AUTHOR
+Thibault Godouet <fcron@free.fr>

@@ -1,0 +1,63 @@
+#include    "./rv_aspects.ah"
+#include    "./solution.hpp"
+
+aspect MyStartStopEventManager:public StartStopEventManagerAspect
+{
+    MyStartStopEventManager():
+        StartStopEventManagerAspect("test") {}
+
+    void add_solver()
+    {
+        ADD_SOLVER(solution_skipfree);
+        ADD_SOLVER(solution_free);
+    }
+};
+
+aspect Often:public BeginEndAspect
+{
+    Often():
+        BeginEndAspect("often") { }
+
+    pointcut functions() = "void often(int)";
+};
+
+
+aspect Malloc:public EventAspect
+{
+    pointcut functions() = "% malloc(...)";
+
+    Malloc():
+        EventAspect("malloc") { }
+
+    advice CALL:after()
+    {
+        void **pp = RETURN_P;
+        cout << "mallocing..." << *pp << endl;
+
+        SET_EVENT_F_NAME;
+        ADD_EVENT_ARG("%d", *pp);
+        PUBLISH_EVENT;
+    }
+
+};
+
+aspect Free:public EventAspect
+{
+    pointcut functions() = "% free(...)";
+
+    Free():
+        EventAspect("free"){};
+
+    advice CALL:around()
+    {
+        void **pp = (void **)ARG0_P;
+        cout << "freeing..." << *pp << endl;
+
+        SET_EVENT_F_NAME;
+        ADD_EVENT_ARG("%d", *pp);
+        PUBLISH_EVENT;
+
+        if(skipfree == false)
+            DO_THIS_FUNCTION;
+    }
+};

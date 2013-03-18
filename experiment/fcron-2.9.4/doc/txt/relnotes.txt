@@ -1,0 +1,25 @@
+
+   #Fcron documentation Fcron : how and why ? Changes Todo
+
+   Copyright © 2000-2004 Thibault Godouet Fcron 2.9.4 (dev release) Web
+   page : http://fcron.free.fr
+   ______________________________________________________________________
+
+              Fcron documentation
+   Prev Chapter 1. Fcron : how and why ? Next
+   ______________________________________________________________________
+
+1.4. Release notes : fcron 2.9.4
+
+     * PAM support has not been tested thoroughly. Help from a PAM expert
+       would be appreciated (to audit the PAM code in fcron, and test
+       it). You can disable PAM use in configure, using "--with-pam=no".
+       Moreover, fcrondyn does not use PAM at this time (should it anyway
+       ?).
+     * Some commands of fcrondyn are not implemented yet.
+     * Fcrondyn might be not very secure, and might be used to block
+       fcron.
+   ______________________________________________________________________
+
+   Prev    Home Next
+   Changes  Up  Todo

@@ -1,0 +1,167 @@
+.\"/*
+.\" * FCRON - periodic command scheduler 
+.\" *
+.\" *  Copyright 2000-2002 Thibault Godouet <fcron@free.fr>
+.\" *
+.\" *  This program is free software; you can redistribute it and/or modify
+.\" *  it under the terms of the GNU General Public License as published by
+.\" *  the Free Software Foundation; either version 2 of the License, or
+.\" *  (at your option) any later version.
+.\" *
+.\" *  This program is distributed in the hope that it will be useful,
+.\" *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" *  GNU General Public License for more details.
+.\" * 
+.\" *  You should have received a copy of the GNU General Public License
+.\" *  along with this program; if not, write to the Free Software
+.\" *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+.\" * 
+.\" *  The GNU General Public License can also be found in the file
+.\" *  `LICENSE' that comes with the fcron source distribution.
+.\" */
+.\"
+.\" /* $Id: fcron.8.in,v 1.30 2001/12/23 22:02:34 thib Exp thib $ */
+.TH FCRON 8 "@@Date@" "fcron version @@VERSION@"
+
+.SH NAME
+fcron \- daemon to execute scheduled commands
+
+.SH SYNOPSIS
+.B fcron
+.RI "[" "-d" "] [" "-f" "] [" "-b" "] [" "-s" " " "t" "] [" "-m" " " "n" "]"
+.RI "[" "-c" " " "f" "]"
+.br
+.B fcron
+.RI "[" "-n" " " "d" "]"
+.br
+.B fcron
+.RI "[" "-h" "]"
+.br
+.B fcron
+.RI "[" "-V" "]"
+
+.SH DESCRIPTION
+Fcron should be started from 
+.B /etc/rc
+or
+.B /etc/rc.local.
+Unless the 
+.IR "-f " "(or " "--foreground" ")"
+option is given, it will return immediately, so you don't need to start it
+with '&'.
+.PP
+Fcron loads users fcrontabs (see
+.BR fcrontab (5) "" ")"
+files previously installed by fcrontab (see 
+.BR fcrontab (1) "" ")."
+Then, fcron calculates the time and date of each job's next execution,
+and determines how long it has to sleep, and sleeps for this amount of time.
+When it wakes up, it checks all jobs loaded and runs them if needed.
+When a job is executed, fcron forks, changes its user and group permissions
+to match those of the user the job is being done for, executes that job and
+mails the outputs to the user (this can be changed : see 
+.BR fcrontab (5) "" ")."
+.PP
+Informative message about what fcron is doing are sent to 
+.BR syslogd (8) " " "under facility " cron ", priority " notice "."
+Warning and error messages are sent respectively at priority 
+.BR warning " and " error "."
+.PP
+Note that fcron sleeps at least @@FIRST_SLEEP@ seconds after it has been
+started before executing a job to avoid to use too much resources during
+system boot.
+
+.SH OPTIONS
+.TP
+.B -f --foreground
+Don't fork to the background. In this mode, fcron will output informational
+message to standard error as well as to syslogd.
+.TP
+.B -b --background
+Force running in background, even if fcron has been compiled to run in
+foreground as default.
+.TP
+.B -s t --savetime t
+Save fcrontabs on disk every t sec (default is 1800).
+.TP
+.B -m n --maxserial n
+Set to n the maximum number of serial jobs which can run simultaneously.
+By default, this value is set to @@SERIAL_MAX_RUNNING@.
+.br
+.IR "see also" " :"
+.RB "option" " serial" " in " "fcrontab" "(5)."
+.TP
+.B -c f --configfile f
+Make fcron use config file f instead of default config file
+@@ETC@/@@FCRON_CONF@. To interact with that running fcron process, fcrontab
+must use the same config file (which is defined by fcrontab's option -c). That
+way, several fcron processes can run simultaneously on an only system
+(but each fcron process *must* have a different spool dir and pid file from
+the other processes).
+.TP
+.B -n d --newspooldir d
+Create d as a new spool directory for fcron. Set correctly its mode and owner.
+Then, exit.
+.TP
+.B -h --help
+Display a brief description of the options.
+.TP
+.B -V --version
+Display an informational message about fcron, including its version
+and the license under which it is distributed.
+.TP
+.B -d --debug
+Run in debug mode (more details on stderr (if option -f is set)
+and in log file)
+
+.SH RETURN VALUES
+Fcron returns @@EXIT_OK@ on normal exit, and @@EXIT_ERR@ on error.
+
+.SH SIGNALS
+.TP
+.B SIGTERM
+Save configuration (time remaining until next execution, time and date
+of next execution, etc), wait for all running jobs and exit.
+.TP
+.B SIGUSR1
+Force fcron to reload its configuration.
+.TP
+.B SIGUSR2
+Make fcron print its current schedule on syslog.
+.br
+It also toggles on/off the printing on debug info on syslog.
+.TP
+.B SIGHUP
+Tell fcron to check if there is any configuration update (this signal is
+used by
+.BR fcrontab (5) "" )
+
+.SH CONFORMING TO
+Should be POSIX compliant. 
+
+.SH FILES
+.TP
+.I @@ETC@/@@FCRON_CONF@
+Configuration file for fcron and fcrontab : contains paths (spool dir,
+pid file) and default programs to use (editor, shell, etc).
+.RB "See " fcron.conf "(5) for more details."
+.TP
+.I @@ETC@/@@FCRON_ALLOW@
+Users allowed to use fcrontab (one name per line, special name "all"
+acts for everyone)
+.TP
+.I @@ETC@/@@FCRON_DENY@
+Users who are not allowed to use fcrontab (same format as allow file)
+.TP
+.IR @@ETC@/pam.d/fcron " (or " @@ETC@/pam.conf ")"
+PAM configuration file for fcron. Take a look at
+.BR pam "(8) for more details."
+
+.SH "SEE ALSO"
+.BR fcron.conf "(5),"
+.BR fcrontab "(1),"
+.BR fcrontab "(5)."
+
+.SH AUTHOR
+Thibault Godouet <fcron@free.fr>

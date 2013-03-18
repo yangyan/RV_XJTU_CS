@@ -1,0 +1,159 @@
+############################
+# fcron-doc's Makefile  ####
+############################
+
+# @configure_input@
+
+# $Id: Makefile.in,v 1.21 2003/12/29 15:41:18 thib Exp thib $
+
+# The following should not be edited manually (use configure options)
+# If you must do it, BEWARE : some of the following is also defined
+# in config.h, so you must modify config.h AND Makefile in order
+# to set the same values in the two files.
+
+
+SRCDIR		= @srcdir@
+
+prefix		= @prefix@
+DESTMAN		= $(DESTDIR)@mandir@
+DESTDOC		= $(DESTDIR)@DOCDIR@
+
+INSTALL		= @INSTALL@
+JADE 		= @JADE@
+DB2MAN_BEFORE	= @DB2MAN_BEFORE@
+DB2MAN_AFTER	= @DB2MAN_AFTER@
+
+ROOTNAME	= @ROOTNAME@
+ROOTGROUP	= @ROOTGROUP@
+
+ANSWERALL	= @ANSWERALL@
+
+####################################
+# Should not be changed under this #
+####################################
+STYLESHEET = stylesheets/fcron-doc.dsl
+MODFILE = fcron-doc.mod
+VERSION = @VERSION@
+SGMLFILES = fcron-doc.sgml readme.sgml relnotes.sgml changes.sgml faq.sgml thanks.sgml todo.sgml fcron.8.sgml fcrontab.1.sgml install.sgml fcron.conf.5.sgml fcrontab.5.sgml fcrondyn.1.sgml fdl.sgml gpl.sgml 
+TXTFILES = readme install thanks faq gpl todo relnotes changes
+MANPAGES = fcron.8 fcron.conf.5 fcrontab.1 fcrontab.5 fcrondyn.1
+
+# this is a regular expression :
+# do not ci these files
+RCSNOCI=.*\(bitstring.3\|fcron-doc.ced\|Makefile\|stylesheets/fcron-doc.dsl\|fcron-doc.mod\|HTML.*\|txt.*\|man\/.*\|CVS.*\)
+
+all: doc
+
+doc: HTML/index.html
+
+mandoc:
+	@(if test -z "$(DB2MAN_BEFORE)"; then \
+	   echo "ERROR: cannot generate man pages." ; \
+	   echo "  Please check if a db2man converter is installed, or if" \
+	   echo "  nsgmls, sgmlspl are installed, and if configure's options" \
+	   echo "  --with-db2man and --with-db2man-spec are correctly set." ; \
+	   exit 1 ; \
+	fi)
+	@(echo ; echo "Building man pages ..."; echo )
+	cp -f bitstring.3 man/
+	@(for i in $(MANPAGES); do \
+	  echo "  $$i ..."; \
+	  echo '<!doctype refentry PUBLIC "-//OASIS//DTD DocBook V4.1//EN" [ \
+                  <!ENTITY % decl SYSTEM "fcron-doc.mod"> \
+                  %decl;]>' > _tmp_ ; \
+          echo "&$$i;" >> _tmp_ ; \
+          $(DB2MAN_BEFORE) _tmp_ $(DB2MAN_AFTER) > /dev/null 2>&1 ; \
+	  rm -f _tmp_ ; \
+	  mv `basename $$i .sgml` man/ ; \
+          done)
+	rm -f manpage.links manpage.refs
+
+
+txtdoc: HTML/index.html
+	@(echo ; echo "Building txt files ..."; echo )
+	@(for i in $(TXTFILES); do \
+	  echo "  $$i ..."; \
+	  lynx -dump -nolist HTML/$$i.html > txt/$$i.txt; done )
+
+fcron-doc.mod: fcron-doc.mod.in
+	@(echo ; echo "Building fcron-doc.mod"; echo)
+	../script/gen-in.pl fcron-doc.mod.in fcron-doc.mod ../
+
+HTML/index.html: $(SGMLFILES) fcron-doc.mod.in stylesheets/fcron-doc.dsl.in
+	make fcron-doc.mod
+	@(echo ; echo "Building index.html"; echo)
+	rm -fR HTML/*.html
+	$(JADE) -t sgml -i html -d stylesheets/fcron-doc.dsl\#html fcron-doc.sgml
+# We put that here to avoid to run this each time, even if doc is up to date
+# (as it is not a file, make cannot check if it is up to date)
+	make mandoc txtdoc
+
+install: clean
+	@(echo "Creating man directories (if needed) ...")
+	@(if test ! -d $(DESTMAN)/man1; then $(INSTALL) -g $(ROOTGROUP) -o $(ROOTNAME) -m 755 -d $(DESTMAN)/man1 ; fi)
+	@(if test ! -d $(DESTMAN)/man3; then $(INSTALL) -g $(ROOTGROUP) -o $(ROOTNAME) -m 755 -d $(DESTMAN)/man3 ; fi)
+	@(if test ! -d $(DESTMAN)/man5; then $(INSTALL) -g $(ROOTGROUP) -o $(ROOTNAME) -m 755 -d $(DESTMAN)/man5 ; fi)
+	@(if test ! -d $(DESTMAN)/man8; then $(INSTALL) -g $(ROOTGROUP) -o $(ROOTNAME) -m 755 -d $(DESTMAN)/man8 ; fi)
+	@(if test ! -d $(DESTDOC)/fcron-$(VERSION); then $(INSTALL) -g $(ROOTGROUP) -o $(ROOTNAME) -m 755 -d $(DESTDOC)/fcron-$(VERSION) ; fi)
+	@(if test ! -d $(DESTDOC)/fcron-$(VERSION)/txt; then $(INSTALL) -g $(ROOTGROUP) \
+	    -o $(ROOTNAME) -m 755 -d $(DESTDOC)/fcron-$(VERSION)/txt/ ; fi)
+	@(if test ! -d $(DESTDOC)/fcron-$(VERSION)/HTML; then $(INSTALL) -g $(ROOTGROUP)\
+	    -o $(ROOTNAME) -m 755 -d $(DESTDOC)/fcron-$(VERSION)/HTML/ ; fi)
+
+	@(echo "Installing man pages in $(DESTMAN)/man{1,3,5,8} ...")
+	@($(INSTALL) -m 644 -o $(ROOTNAME) $(SRCDIR)/man/fcron.8 $(DESTMAN)/man8)
+	@($(INSTALL) -m 644 -o $(ROOTNAME) $(SRCDIR)/man/fcrontab.1 $(DESTMAN)/man1)
+	@($(INSTALL) -m 644 -o $(ROOTNAME) $(SRCDIR)/man/fcrondyn.1 $(DESTMAN)/man1)
+	@($(INSTALL) -m 644 -o $(ROOTNAME) $(SRCDIR)/man/fcrontab.5 $(DESTMAN)/man5)
+	@($(INSTALL) -m 644 -o $(ROOTNAME) $(SRCDIR)/man/fcron.conf.5 $(DESTMAN)/man5)
+	@($(INSTALL) -m 644 -o $(ROOTNAME) $(SRCDIR)/man/bitstring.3 $(DESTMAN)/man3)
+	@(echo "Installing txt files in $(DESTDOC)/fcron-$(VERSION)/txt/ ...")
+	@(for i in $(SRCDIR)/txt/*; do \
+	          echo "$$i" ; \
+	          $(INSTALL) -m 644 -o $(ROOTNAME) $$i \
+	                     $(DESTDOC)/fcron-$(VERSION)/txt/ ;\
+	          done)
+	@(echo "Installing html files $(DESTDOC)/fcron-$(VERSION)/HTML/ ...")
+	@(for i in $(SRCDIR)/HTML/*; do \
+	          $(INSTALL) -m 644 -o $(ROOTNAME) $$i \
+	                     $(DESTDOC)/fcron-$(VERSION)/HTML/ ;\
+	          done)
+
+uninstall:
+	rm -fR $(DESTDOC)/fcron-$(VERSION)
+	rm -f $(DESTMAN)/man1/fcrontab.1
+	rm -f $(DESTMAN)/man1/fcrondyn.1
+	rm -f $(DESTMAN)/man3/bitstring.3
+	rm -f $(DESTMAN)/man5/fcrontab.5
+	rm -f $(DESTMAN)/man5/fcron.conf.5
+	rm -f $(DESTMAN)/man8/fcron.8
+
+
+clean:
+	@(cd $(SRCDIR) ; for i in man txt stylesheets . ; do \
+	  cd $$i ; \
+	  echo "Cleaning : `pwd`"; \
+          rm -f *~ *.html *.htm *.texi *.info *.refs manpage.links manpage.refs \
+	        core *.tar.gz ; \
+          cd .. ;  \
+          done)
+
+tarclean: clean
+	rm -f Makefile stylesheets/fcron-doc.dsl fcron-doc.mod
+
+vclean: clean
+	rm -f HTML/* man/* txt/*
+
+ci: clean
+# we run a "cd .." because it makes appear the path of the file ( ./doc/XXXX )
+# during the ci-ing
+# the symbolic links verX_X_X has been created since version 2.9.4
+	@(cd ..; find ./doc/ -type f ! -regex '.*RCS.*' ! -regex "$(RCSNOCI)" \
+             -exec ci -l -Nver`echo $(VERSION) | tr '.' '_'` {} \;)
+
+tarhtmldoc: doc
+	mkdir fcron-$(VERSION)-doc-html
+	cp HTML/*.html fcron-$(VERSION)-doc-html
+	rm -f fcron-doc-html.tar.gz
+	tar -czvf fcron-doc-html.tar.gz fcron-$(VERSION)-doc-html/*
+	rm -fR fcron-$(VERSION)-doc-html

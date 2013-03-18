@@ -1,0 +1,13 @@
+- PAM support (ongoing) (need more tests)
+
+- convert the doc into DocBook, and make it easier to read and understand
+
+- allow a non-privileged user to run fcron
+
+- possibility to display a list of jobs including their options,
+  time and date of next execution, status, of only the running jobs,
+  all the jobs, in order of execution or classified by user, etc.
+
+- run one of this job, change its nice value, stop it...
+
+- add a system of data flow

@@ -1,0 +1,64 @@
+#ifndef MAIN_HPP
+#define MAIN_HPP
+
+#include    "./rv_aspects.ah"
+
+extern int solution_doclose(vector<string> &);
+
+aspect MyStartStopEventManager:public StartStopEventManagerAspect
+{
+    MyStartStopEventManager():
+        StartStopEventManagerAspect("fcrontab") {}
+
+    void add_solver()
+    {
+        ADD_SOLVER(solution_doclose);
+    }
+};
+
+aspect Often:public BeginEndAspect
+{
+    Often():
+        BeginEndAspect("is_allowed") { }
+
+    pointcut functions() = "% is_allowed(...)";
+};
+
+
+aspect Open:public EventAspect
+{
+    pointcut functions() = "% fopen(...)";
+
+    Open():
+        EventAspect("fopen") { }
+
+    advice CALL:after()
+    {
+        void **fd = (void **)RETURN_P;
+        cout << "fopen..." << *fd << endl;
+
+        SET_EVENT_F_NAME;
+        ADD_EVENT_ARG("%d", *fd);
+        PUBLISH_EVENT;
+    }
+};
+
+aspect Close:public EventAspect
+{
+    pointcut functions() = "% fclose(...)";
+
+    Close():
+        EventAspect("fclose") { }
+
+    advice CALL:after()
+    {
+        void **fd = (void **)ARG0_P;
+        cout << "fclose..." << *fd << endl;
+
+        SET_EVENT_F_NAME;
+        ADD_EVENT_ARG("%d", fd);
+        PUBLISH_EVENT;
+    }
+};
+
+#endif

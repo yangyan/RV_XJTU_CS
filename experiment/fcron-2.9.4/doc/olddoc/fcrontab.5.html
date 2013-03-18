@@ -1,0 +1,926 @@
+Content-type: text/html
+
+<HTML><HEAD><TITLE>Manpage of FCRONTAB</TITLE>
+</HEAD><BODY>
+<H1>FCRONTAB</H1>
+Section: File Formats (5)<BR>Updated: 12/25/2001<BR><A HREF="#index">Index</A>
+Return to Main Contents<HR>
+
+<P>
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+fcrontab - tables for driving fcron
+<P>
+<A NAME="lbAC">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+A fcrontab is a file containing all tables used by the
+<B>fcron</B>(8)
+
+daemon. In other words, it is the means for a user to tell the daemon
+&quot;execute this command at this moment&quot;. Each user has his own fcrontab,
+whose commands are executed as his owner (only root can run a job as another
+using the option
+<B>runas</B> (see below)).
+
+<P>
+
+Blank lines, line beginning by a pound-sign (#) (which are considered
+comments), leading blanks and tabs are ignored. Each line in a fcrontab file
+can be either
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT>an environment setting,<DD>
+<DT>an option setting,<DD>
+<DT>entries based on elapsed system up time,<DD>
+<DT>entries based on absolut time<DD>
+<BR>
+
+(like normal crontab entries), or
+<DT>entries run periodically.<DD>
+</DL>
+</DL>
+
+<P>
+
+Any logical line (an entry or an assignment)
+can be divided into several real lines (the lines which end by a newline
+character) by placing a backslash (\) before the newline character (\n). 
+<P>
+
+<A NAME="lbAD">&nbsp;</A>
+<H3>The environment settings</H3>
+
+The environment settings are of the form
+<P>
+
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;name&nbsp;=&nbsp;value
+<P>
+
+where the blanks around equal-sign (=) are ignored and optional. Trailing
+blanks are also ignored, but you can place the value in quotes (simple or
+double, but matching) to preserve any blanks in the value.
+<P>
+
+When fcron executes a command, it always sets
+<B>USER</B>, <B>HOME</B>, and <B>SHELL</B> as defined in
+
+<I>/etc/passwd</I>
+
+for the owner of the fcrontab from which the command is
+extracted.
+<B>HOME</B> and <B>SHELL</B>
+
+may be overridden by settings in the fcrontab, but
+<B>USER</B>
+
+may not.
+Every other environment assignments defined in the user fcrontab are then
+made, and the command is executed.
+<P>
+
+Plus, the special variable 
+<B>MAILTO </B>
+
+allows you to tell fcron to whom it has
+to mail the command's output. Note that
+<B>MAILTO</B>
+
+is in fact equivalent to a global declaration of the option 
+<B>mailto</B> (see below).
+
+It is only used for backward compatibility, so you should use the option
+<B>mailto</B> directly.
+
+<P>
+
+<A NAME="lbAE">&nbsp;</A>
+<H3>Entries based on elapsed system up time</H3>
+
+The entries of commands which have to be run once every m minutes of fcron's
+execution (which is normally the same as m minutes of system's execution)
+are of the form
+<P>
+
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;@options&nbsp;frequency&nbsp;command
+<P>
+
+where frequency is a time value of the form
+value*multiplier+value*multiplier+...+value-in-minutes as &quot;12h02&quot;
+or &quot;3w2d5h1&quot;. The first means &quot;12 hours and 2 minutes of fcron execution&quot;
+while the second means &quot;3 weeks, 2 days, 5 hours and 1 minute of fcron
+execution&quot;. The only valid multipliers are: 
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT><I>multipliers</I>
+
+<DD>
+<I>meaning</I>
+
+<DT>m<DD>
+months (4 weeks)
+<DT>w<DD>
+weeks (7 days)<TT>&nbsp;</TT><BR>
+<DT>d<DD>
+days (24 hours)
+<DT>h<DD>
+hours (60 minutes)
+</DL>
+</DL>
+
+<P>
+
+In place of options, user can put a time value : it will be interpreted as 
+@first(time). If first option is not set, the value of &quot;frequency&quot; is used.
+<P>
+
+This kind of entry does not guarantee a time and date of execution (as the job
+is delayed at each startup by the time elapsed since the shutdown), but should
+be useful for jobs depending on the number of things done by the users
+(for instance, the filesystem should better be checked after an certain amount
+of use by the users rather than every x days, as the system may run from 1 day
+to x days during that x days interval).
+<P>
+
+The time remaining before next execution is saved every 1800 seconds
+(to limit damages caused by a crash) and when fcron exits after having received
+a SIGTERM signal, i.e. when systems go down. Thus, this kind of entries is
+particularly useful for systems that don't run regularly. The syntax being
+very simple, it may also useful for tasks which don't need to be run at
+a specific time and date.
+<P>
+
+<I>see also</I> :
+
+options<B> first, mail, nolog, serial, lavg, nice, runas</B> (see below).
+
+<P>
+<P>
+
+<A NAME="lbAF">&nbsp;</A>
+<H3>Entries based on time and date</H3>
+
+The second type of fcrontab's entries begins by an optional &quot;&amp;&quot;, which can be
+immediately followed by an optional number defining the frequency of
+execution (this is equivalent to option 
+<B>runfreq</B>) or a declaration of options;
+
+it has five time and date fields, and a shell command. Note that the shell
+command may be preceded by a user name, which is equivalent to 
+<B>runas</B>(user): as it is only here for backward compatibility you should
+
+use option <B>runas</B> (see below) instead.
+
+The frequency is interpreted as: &quot;run this command after x matches
+of time and date fields&quot;. The time and date fields are:
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT><I>field</I>
+
+<DD>
+<I>allowed values</I>
+
+<DT>minute<DD>
+0-59
+<DT>hour<DD>
+0-23
+<DT>day of month<DD>
+1-31
+<DT>month<DD>
+1-12 (or names, see below)
+<DT>day of week<DD>
+0-7 (0 and 7 are both Sunday, or names)
+</DL>
+</DL>
+
+<P>
+
+A field is always filled by either an asterisk (*), which acts as &quot;first-last&quot;
+range, a single number or a list.
+<P>
+
+List are numbers or range separated with commas (,). For instance: &quot;2,5,15,23&quot;.
+<P>
+
+Ranges of number are of the form &quot;begin-end&quot;, where &quot;begin&quot; and &quot;end&quot; are
+included. For example, &quot;3-5&quot; specifies the values 3, 4 and 5. You can also
+add an optional &quot;/number&quot; to a range, where the number specifies skips of the
+number's value through the range.  For example, &quot;0-23/2&quot; can be used in
+the hours field to specify command execution  every other hour. Finally,
+one or several &quot;~number&quot; can be added to turn off some values in a range.
+For example, &quot;5-8~6~7&quot; is equivalent to &quot;5,8&quot;. The final form of a field is:
+&quot;a[-b[/c][~d][~e][...]][,f[-g[/h][~i][~j][...]]][,...]&quot;, where the letters
+are integers.
+<P>
+
+You can also use an asterisk (*) in a field. It acts for &quot;first-last&quot;.
+For example, a &quot;*&quot; in the field minute means all minutes from minute 0
+down to minute 59.
+<P>
+
+<P>
+
+Ranges can be included in a list as a single number. For instance:
+&quot;2,5-10/2~6,15,20-25,30&quot;.
+<P>
+
+Names can also be used for  the &quot;month&quot;  and  &quot;day of week&quot; fields.
+To do so, use the first three letters of the particular day or month
+(case doesn't matter). Please note that names are used exactly as numbers:
+you can use them in a list or a range.
+<P>
+
+If a day of month and a day of week are given, the command will execute only
+when both match with the current time and date unless option
+<B>dayor</B> is set.
+
+For example, with the line &quot;5 10 31 * 7 echo ''&quot; , echo will be executed only
+days which are a Sunday AND a 31th.
+<P>
+
+<I>see also</I> :
+
+options<B> dayor, bootrun, runfreq, mail, nolog, serial, lavg, nice,</B>
+
+<B>runas</B> (see below).
+
+<P>
+<P>
+
+<A NAME="lbAG">&nbsp;</A>
+<H3>Entries run periodically</H3>
+
+The third type of fcrontab's entries begin by a &quot;%&quot;, followed by one of
+the keywords :
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT><B>hourly, daily, monthly, weekly,</B>
+
+<DD>
+<DT><B>midhourly, middaily, nightly, midmonthly, midweekly,</B>
+
+<DD>
+<DT><B>mins, hours, days, mons, dow.</B>
+
+<DD>
+</DL>
+</DL>
+
+<P>
+
+and optional options.
+<BR>
+
+The keywords of the first line tell fcron to run the command once from
+the beginning of the corresponding interval to the end of that interval : 
+for instance, the keyword <B>weekly</B>
+
+tells fcron to run a command once between Monday and Sunday each week.
+On top of that, the second list acts similarly but from middle to middle of
+the corresponding interval : <B>midweekly</B>
+
+will run a command once from Thursday to Wednesday. 
+Note that <B>nightly</B> is equivalent to <B>middaily</B>.
+
+<BR>
+
+With this two kind of keywords, user must give the needed time fields (as 
+defined in &quot;Entries based on time and date&quot; (see above)) to specify when
+the command should be run during each interval :
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT><I>Keywords:</I>
+
+<DD>
+<I>must be followed by the fields:</I>
+
+<DT><B>hourly, midhourly :</B>
+
+<DD>
+minutes.
+<DT><B>daily, middaily, nightly, weekly, midweekly :</B>
+
+<DD>
+minutes and hours.
+<DT><B>monthly, midmonthly :</B>
+
+<DD>
+minutes, hours and days.
+</DL>
+</DL>
+
+<P>
+
+For example : '%nightly * 21-23,3-5 echo &quot;a monthly entry&quot;'
+<BR>
+
+will run the command once each night either between 21:00 and 23:59, or between
+3:00 and 5:59.
+<P>
+
+<I>see also</I> :
+
+options<B> lavg, noticenotrun, strict, mail, nolog, serial, nice, runas</B>
+
+(see below).
+<P>
+<P>
+
+The keywords of the third list act differently, as follows:
+<BR>
+
+run this command once during EACH interval specified, ignoring the fields
+below the keyword in the interval definition 
+(a <B>hours</B> prevents the mins field to be considered as an interval,
+
+but it will be used to determine when the line should be run during an 
+interval : see the note below) (<B>dow</B> means
+
+&quot;day of week&quot;).
+<BR>
+
+Such a keyword is followed by 5 time and date fields (the same fields used
+for a line based on absolut time (see above)). 
+Furthermore, there must be some non-matching time and dates in the lines
+with that kind of keyword (i.e. the following is not allowed : 
+&quot;%hours * 0-23 * * * echo&quot;, but &quot;%hours * 0-22 * * * echo&quot; is allowed).
+<BR>
+
+<I>Note</I> : a single number in a field is considered as an interval :
+
+&quot;%mins 15 2-4 * * * echo&quot; will run at 2:15, 3:15 
+<I>AND</I> 4:15 every day.
+
+<BR>
+
+But every fields below the keywords are ignored in interval definition :
+&quot;%hours 15 2-4 * * * echo&quot; will run only ONCE either at 2:15, 3:15
+<I>OR</I> 4:15.
+
+<P>
+<P>
+
+<A NAME="lbAH">&nbsp;</A>
+<H3>Options</H3>
+
+The options can be set either for every line below the declaration
+or for an individual line. In the first case, the setting is done on a whole
+line immediately after an exclamation mark (!), while it is done after
+a &quot;&amp;&quot;, a &quot;%&quot; or a &quot;@&quot; depending on the type of scheduling in the second case.
+Note that
+an option declaration in a schedule overrides the global declaration of
+that same
+option.
+<BR>
+
+Options are separated by comas (,) and their arguments, if any, are placed
+between brackets (&quot;(&quot; and &quot;)&quot;) and separated by comas. No spaces are
+allowed. A declaration of options is of the form
+<P>
+
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;option[(arg1[,arg2][...])][,option[(arg1[...])]][...]
+<P>
+
+where option is either the name of an option or its abbreviation.
+The options are (abbreviation and default value between brackets):
+<DL COMPACT><DT><DD>
+<DL COMPACT>
+<DT><B>reset </B>
+
+<DD>
+<I>boolean</I>
+
+<BR>
+
+Reset options to default.
+<DT><B>exesev</B>
+
+<DD>
+<I>boolean</I>(false)
+
+<BR>
+
+Can a job be executed several times simultaneously ?
+<BR>
+
+<I>see also</I> :
+
+options<B> serialonce, lavgonce.</B>
+
+<DT><B>serialonce</B>
+
+<DD>
+<I>boolean</I>(0)
+
+<BR>
+
+Can a job be queued several times in serial queue simultaneously ?
+<BR>
+
+<I>see also</I> :
+
+options<B> exesev, lavgonce.</B>
+
+<DT><B>serial (s)</B>
+
+<DD>
+<I>boolean</I>(false)
+
+<BR>
+
+Fcron runs at most 1 serial jobs (and the same number
+of lavg serial jobs) simultaneously (but this value may be modified by fcron's
+option 
+<I>-m</I>).
+
+<BR>
+
+<I>see also</I> :
+
+options<B> serialonce, lavg.</B>
+
+<DT><B>bootrun (b)</B>
+
+<DD>
+<I>boolean</I>(false)
+
+<BR>
+
+Run a &amp;-line at fcron's startup if it should have be run during system down
+time.
+<DT><B>first (f)</B>
+
+<DD>
+<I>time-value</I>
+
+<BR>
+
+Delay before first execution of a job based on system up time (&quot;@&quot;-lines).
+<DT><B>runfreq (r)</B>
+
+<DD>
+<I>integer</I>
+
+<BR>
+
+Run every &quot;runfreq&quot; matches of time and date. (this option is ignored for lines
+<BR>&nbsp;based&nbsp;on&nbsp;elapsed&nbsp;system&nbsp;up&nbsp;time).
+<DT><B>mailto</B>
+
+<DD>
+<I>user-name</I>(name of file's owner)
+
+<BR>
+
+Mail output (if needed) to &quot;mailto&quot;.
+A mailto declared and empty (string &quot;&quot;) is equivalent to &quot;mail(false)&quot;.
+<BR>
+
+<I>see also</I> :
+
+options<B> mail, forcemail, nolog.</B>
+
+<DT><B>mail (m)</B>
+
+<DD>
+<I>boolean</I>(true)
+
+<BR>
+
+Mail output (if any) or not.
+<BR>
+
+<I>see also</I> :
+
+options<B> mailto, forcemail, nolog.</B>
+
+<DT><B>forcemail</B>
+
+<DD>
+<I>boolean</I>(false)
+
+<BR>
+
+Mail output even if zero-length.
+<BR>
+
+<I>see also</I> :
+
+options<B> mail, mailto, nolog.</B>
+
+<DT><B>nolog</B>
+
+<DD>
+<I>boolean</I>(false)
+
+<BR>
+
+If set to true, log only errors for the corresponding job(s). May be useful
+for jobs running very often, and/or to reduce disk access on a laptop.
+<BR>
+
+<I>see also</I> :
+
+options<B> mail, mailto, forcemail.</B>
+
+<DT><B>dayand</B>
+
+<DD>
+<I>boolean</I>(true)
+
+<BR>
+
+Perform a logic AND between week and month day.
+<BR>
+
+<I>see also</I> :
+
+option<B> dayor.</B>
+
+<DT><B>dayor</B>
+
+<DD>
+<I>boolean</I>(false)
+
+<BR>
+
+Perform a logic OR between week and month day.
+<BR>
+
+<I>see also</I> :
+
+option<B> dayand.</B>
+
+<DT><B>nice (n)</B>
+
+<DD>
+<I>nice-value</I>
+
+<BR>
+
+Change job priority.
+A <B>nice</B>
+
+value is an integer from -20 (highest priority) to 19 (lowest)
+(only root is allowed to use a negative value with this option).
+<DT><B>runas</B>
+
+<DD>
+<I>user-name</I>
+
+<BR>
+
+Run with &quot;user-name&quot; permissions and environment (only root is allowed to use
+this option).
+<BR>
+
+<DT><B>lavg</B>
+
+<DD>
+<I>real</I>(0) <I>real</I>(0) <I>real</I>(0) 
+
+<BR>
+
+Set the values of the 1, 5 and 15 minutes (in this order) system load average
+values below which the job should run. The values have a maximum of 1 decimal
+(i.e. &quot;2.3&quot;), any other decimals are only used to round off.
+Set a value to 0 to ignore the corresponding load average (or all of the values to run
+the job regardless of the load average).
+<BR>
+
+<I>see also</I> :
+
+options<B> lavg1, lavg5, lavg15, until, lavgonce, lavgor, lavgand,</B>
+
+<B>strict, noticenotrun</B>.
+
+<DT><B>lavg1 lavg5 lavg15</B>
+
+<DD>
+<I>real</I>(0)
+
+<BR>
+
+Set the threshold of, respectively, the 1, 5 or 15 minutes system load average
+value. Set one of them to 0 to ignore the corresponding load average.
+<BR>
+
+<I>see also</I> :
+
+option<B> lavg.</B>
+
+<DT><B>until</B>
+
+<DD>
+<I>time-value</I>(0)
+
+<BR>
+
+Set the timeout of the waiting of the wanted system load average
+values. If the timeout is exceeded, the job runs no matter the load average.
+Set until to 0 to remove the timeout.
+<BR>
+
+<I>see also</I> :
+
+option<B> lavg.</B>
+
+<DT><B>lavgonce</B>
+
+<DD>
+<I>boolean</I>(1)
+
+<BR>
+
+Can a job be queued several times in lavg queue simultaneously ?
+<BR>
+
+<I>see also</I> :
+
+option<B> lavg.</B>
+
+<DT><B>lavgand</B>
+
+<DD>
+<I>boolean</I>(true)
+
+<BR>
+
+Perform a logic AND between the 1, 5 and 15 minutes system load average values.
+<BR>
+
+<I>see also</I> :
+
+option<B> lavg, lavgor.</B>
+
+<DT><B>lavgor</B>
+
+<DD>
+<I>boolean</I>(false)
+
+<BR>
+
+Perform a logic OR between the 1, 5 and 15 minutes system load average values.
+<BR>
+
+<I>see also</I> :
+
+option<B> lavg, lavgand.</B>
+
+<DT><B>strict</B>
+
+<DD>
+<I>boolean</I>(true)
+
+<BR>
+
+When a lavg %-job is at the end of an interval of execution, should it be
+removed from the lavg queue (strict(true), so the job is not run) or be let
+there until the system load average allows its execution (strict(false)) ?
+<BR>
+
+<I>see also</I> :
+
+option<B> lavg, noticenotrun.</B>
+
+<DT><B>noticenotrun</B>
+
+<DD>
+<I>boolean</I>(no)
+
+<BR>
+
+Should fcron mail user to report the non-execution of a %-job or a &amp;-job
+(because of system down state for both or a too high system load average for
+the latter).
+<BR>
+
+<I>see also</I> :
+
+option<B> lavg, strict.</B>
+
+<DT><B>tzdiff</B>
+
+<DD>
+<I>integer</I>(0)
+
+<BR>
+
+Time zone difference (in hours, between -24 and 24) between the system time,
+and the local real time. This option allows a user to define its &amp; and %-lines
+in the local time. Note that this value is set for a whole fcrontab file, and
+only the last definition is taken into account.
+<BR>
+
+<I>see also</I> :
+
+option<B> lavg, strict.</B>
+
+</DL>
+</DL>
+
+<P>
+
+A boolean argument can be inexistent, in which case brackets are not used and
+it means true; the string &quot;true&quot;, &quot;yes&quot; or 1 to mean true; and the string
+&quot;false&quot;, &quot;no&quot; or 0 to mean false. See above for explanations about time value
+(section &quot;entries based on elapsed system up time&quot;).
+<P>
+
+Note that 
+<B>dayand</B> and <B>dayor</B>
+
+are in fact the same option : a false value to 
+<B>dayand</B> is equivalent to a true to <B>dayor</B>,
+
+and reciprocally a false value to 
+<B>dayor</B> is equivalent a true value to <B>dayand</B>.
+
+It is the same for
+<B>lavgand</B> and <B>lavgor</B>.
+
+<P>
+
+Note a special case to be handled :
+<BR>
+
+A job should be entered into the 
+<B>serial</B>
+
+queue, *but*  the previous entry
+for this job has not been completed yet, because of high system load or some
+external event. Option 
+<B>serialonce</B>
+
+answers the question :  should the new entry of the job be ignored ?  This way
+one can distinguish between jobs required to run a certain number of times,
+preferably at specified times, and tasks to be performed irrespective of their
+number (-&gt; serialonce(true)), which make the system respond faster.
+<BR>
+
+The same considerations apply for the load average queue, and can
+be expressed with option
+<B>lavgonce</B>.
+
+<P>
+Moreover, if the
+<B>serial</B> or the <B>lavg</B>
+
+queue contains respectively more than 30 and
+30 jobs, the next job in the 
+<B>serial</B> queue or the job nearest to the <B>until</B> timeout in the <B>lavg</B>
+
+queue will be executed before adding a new job.
+<P>
+
+Finally, if jobs remain in the
+<B>lavg</B> or <B>serial</B>
+
+queues when fcron stops, they will be put once in the corresponding queue
+on startup (their order may not be conserved).
+<P>
+
+An example of an option declaration would be :
+<BR>
+
+!reset,serial(true),dayor,bootrun(0),mailto(root),lavg(.5,2,1.5)
+<P>
+
+<P>
+<P>
+<A NAME="lbAI">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+<PRE>
+# use /bin/bash to run commands, ignoring what /etc/passwd says
+SHELL=/bin/bash
+
+# mail output to thib, no matter whose fcrontab this is
+!mailto(thib)
+
+# define a variable which is equivalent to &quot; Hello thib and paul ! &quot;
+# here the newline characters are escaped by a backslash (\)
+# and quotes are used to force to keep leading and trailing blanks
+TEXT= &quot; Hello\
+<BR>
+ thib and\
+<BR>
+ paul ! &quot;
+
+# we want to use serial but not bootrun:
+!serial(true),b(0)
+
+# run after five minutes of execution the first time,
+# then run every hours
+@first(5) 1h   echo &quot;Run every hours&quot;
+
+# run every days
+@ 1d echo &quot;fcron daily&quot;
+
+# run once between in the morning and once in the afternoon
+#  if systems is running at any moment of these intervals
+&amp;hours * 8-12,14-18 * * * echo &quot;Hey boss, I'm working today !&quot;
+
+# run once a week during our lunch
+%weekly * 12-13 echo &quot;I left my system on at least once \
+ at lunch time this week.&quot;
+
+# run every Sunday and Saturday at 9:05
+5 9 * * sat,sun echo &quot;Good morning Thibault !&quot;
+
+# run every peer days of march at 18:00, except on 16th
+0 18 2-30/2~16 Mar * echo &quot;It's time to go back home !&quot;
+
+# the line above is equivalent to 
+&amp; 0 18 2-30/2~16 Mar * echo &quot;It's time to go back home !&quot;
+
+# reset options to default and set runfreq for lines below
+!reset,runfreq(7)
+
+# run once every 7 matches (thanks to the declaration above),
+# so if system is running every day at 10:00, this will be
+# run once a week
+&amp; 0 10 * * * echo &quot;if you got this message last time 7 days ago,\
+ this computer has been running every day at 10:00 last week.\
+ If you got the message 8 days ago, then the system has been down \
+ one day at 10:00 since you got it, etc&quot;
+
+# wait every hour for a 5 minutes load average under 0.9
+@lavg5(0.9) 1h echo &quot;The system load average is low&quot;
+
+# wait a maximum of 5 hours every day for a fall of the load average
+@lavgand,lavg(1,2.0,3.0),until(5h) 1d echo &quot;Load average is going down&quot;
+
+# wait for the best moment to run a heavy job
+@lavgor,lavg(0.8,1.2,1.5),nice(10) 1w echo &quot;This is a heavy job&quot;
+
+# run once every night between either 21:00 and 23:00 or 
+#   between 3:00 and 6:00
+%nightly,lavg(1.5,2,2) * 21-23,3-6 echo &quot;It's time to retrieve \
+the last release of Mozilla !&quot;
+
+
+</PRE><A NAME="lbAJ">&nbsp;</A>
+<H2>FILES</H2>
+
+<DL COMPACT>
+<DT><I>/etc/fcron.conf</I>
+
+<DD>
+Configuration file for fcron and fcrontab : contains paths (spool dir,
+pid file) and default programs to use (editor, shell, etc).
+See <B>fcron.conf</B>(5) for more details.
+
+<DT><I>/etc/fcron.allow</I>
+
+<DD>
+Users allowed to use fcrontab (one name per line, special name &quot;all&quot;
+acts for everyone)
+<DT><I>/etc/fcron.deny</I>
+
+<DD>
+Users who are not allowed to use fcrontab (same format as allow file)
+<P>
+</DL>
+<A NAME="lbAK">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B>fcrontab</B>(1),
+
+<B>fcron</B>(8),
+
+<B>fcron.conf</B>(5).
+
+<P>
+<A NAME="lbAL">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+Thibault Godouet &lt;<A HREF="mailto:fcron@free.fr">fcron@free.fr</A>&gt;
+<P>
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">DESCRIPTION</A><DD>
+<DL>
+<DT><A HREF="#lbAD">The environment settings</A><DD>
+<DT><A HREF="#lbAE">Entries based on elapsed system up time</A><DD>
+<DT><A HREF="#lbAF">Entries based on time and date</A><DD>
+<DT><A HREF="#lbAG">Entries run periodically</A><DD>
+<DT><A HREF="#lbAH">Options</A><DD>
+</DL>
+<DT><A HREF="#lbAI">EXAMPLES</A><DD>
+<DT><A HREF="#lbAJ">FILES</A><DD>
+<DT><A HREF="#lbAK">SEE ALSO</A><DD>
+<DT><A HREF="#lbAL">AUTHOR</A><DD>
+</DL>
+<HR>
+This document was created by
+man2html,
+using the manual pages.<BR>
+Time: 13:50:57 GMT, December 25, 2001
+</BODY>
+</HTML>
