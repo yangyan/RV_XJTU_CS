@@ -84,9 +84,10 @@ namespace rv_xjtu_yangyan
     void EventManager::run_()
     {
         //当收到停止信号，并且所有事件都被处理完毕，就可以结束了
-        while(!(stop_ == true && (*eventQueue_).empty()))
+        while(!(stop_ == true && (*eventQueue_).empty()) )
         {
             semNewEvents_.wait();
+
             if((*eventQueue_).empty())
             {
                 //可以结束了

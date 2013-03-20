@@ -10,7 +10,7 @@ API_SOURCE = event_api.cpp
 
 OBJECTS = $(EVENT_SOURCE:.hpp=.o) $(API_SOURCE:.cpp=.o)
 
-libevent.a : $(OBJECTS)
+libevent.a : $(OBJECTS) ../communication/Sender.hpp
 	ar csr $@ $^
 
 %.o : %.hpp
