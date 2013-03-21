@@ -56,7 +56,7 @@ aspect Close:public EventAspect
         cout << "fclose..." << *fd << endl;
 
         SET_EVENT_F_NAME;
-        ADD_EVENT_ARG("%d", fd);
+        ADD_EVENT_ARG("%d", *fd);
         PUBLISH_EVENT;
     }
 };

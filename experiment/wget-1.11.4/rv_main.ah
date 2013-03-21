@@ -1,0 +1,82 @@
+#ifndef MAIN_HPP
+#define MAIN_HPP
+
+#include    "./rv_aspects.ah"
+
+extern int solution_dofree(vector<string> &);
+
+aspect MyStartStopEventManager:public StartStopEventManagerAspect
+{
+    MyStartStopEventManager():
+        StartStopEventManagerAspect("fcrontab") {}
+
+    void add_solver()
+    {
+        ADD_SOLVER(solution_dofree);
+    }
+};
+
+aspect Often:public BeginEndAspect
+{
+    Often():
+        BeginEndAspect("is_allowed") { }
+
+    pointcut functions() = "% is_allowed(...)";
+};
+
+
+aspect MALLOC:public EventAspect
+{
+    pointcut functions() = "% malloc(...)";
+
+    MALLOC():
+        EventAspect("malloc") { }
+
+    advice CALL:after()
+    {
+        void **pp = (void **)RETURN_P;
+        cout << "malloc..." << *pp << endl;
+
+        SET_EVENT_F_NAME;
+        ADD_EVENT_ARG("%d", *pp);
+        PUBLISH_EVENT;
+    }
+};
+
+aspect CALLOC:public EventAspect
+{
+    pointcut functions() = "% calloc(...)";
+
+    CALLOC():
+        EventAspect("malloc") { }
+
+    advice CALL:after()
+    {
+        void **pp = (void **)RETURN_P;
+        cout << "calloc..." << *pp << endl;
+
+        SET_EVENT_F_NAME;
+        ADD_EVENT_ARG("%d", *pp);
+        PUBLISH_EVENT;
+    }
+};
+
+aspect FREE:public EventAspect
+{
+    pointcut functions() = "% free(...)";
+
+    FREE():
+        EventAspect("free") { }
+
+    advice CALL:after()
+    {
+        void **pp = (void **)ARG0_P;
+        cout << "free..." << *pp << endl;
+
+        SET_EVENT_F_NAME;
+        ADD_EVENT_ARG("%d", *pp);
+        PUBLISH_EVENT;
+    }
+};
+
+#endif

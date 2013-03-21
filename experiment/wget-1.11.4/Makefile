@@ -90,7 +90,7 @@ OBJ = $(ALLOCA) cmpt.o connect.o convert.o cookies.o              \
 # Dependencies for building
 
 wget$(exeext): $(OBJ:.o=.c)
-	$(CC) -g -o $@ $(OBJ:.o=.c) $(CFLAGS) $(INCLUDES) $(CPPFLAGS) $(DEFS) $(LDFLAGS) $(LIBS)
+	$(CC) -g -o $@ rv_globals.cpp rv_solution.cpp $(OBJ:.o=.c) $(CFLAGS) $(INCLUDES) $(CPPFLAGS) $(DEFS) $(LDFLAGS) $(LIBS) -a rv_main.ah -L ../../modules/event/ -levent -lboost_serialization -lboost_system -lboost_thread
 
 # We make object files depend on every header.  Rather than attempt to
 # track dependencies, everything gets recompiled when a header
