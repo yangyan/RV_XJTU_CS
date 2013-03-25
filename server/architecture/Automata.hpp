@@ -29,7 +29,8 @@ namespace rv_xjtu_yangyan
             {
                 public:
                     ConcreteAutomata(automata_type *at, InterestEvents &ie)/*{{{*/
-                        :automataType(at), interestEvents(ie)
+                        :automataType(at), interestEvents(ie),
+                        terminalResult(true), reasonResult(true), must_stop_now(false)
                     {
                         //获得推理集合
                         oc = get_or_collection(automataType);
@@ -277,6 +278,7 @@ namespace rv_xjtu_yangyan
                     boost::uuids::uuid _uuid;
                     bool terminalResult;
                     bool reasonResult;
+                    bool must_stop_now;
 
             };/*}}}*/
 
@@ -369,6 +371,11 @@ namespace rv_xjtu_yangyan
 
                                 Solution s = is_satisfy(ca, isEnd);
                                 rslt.pushBackSolution(s);
+
+                                if(ca.must_stop_now == true)//如果现在必须要停止推理机，那么需要从已有具体自动机中删除之
+                                {
+                                    conAutos.erase(conAutos.begin());
+                                }
                                 return;
                             }
                             else
@@ -503,7 +510,8 @@ namespace rv_xjtu_yangyan
                     {
                         //那就什么都不做，其实和Nothing是一个样子的
                         cout << "推理失败，停止" << endl;
-                        ca.terminalResult = true; //防止结尾的时候再次触发错误
+                        ca.must_stop_now = true;
+                        //ca.terminalResult = true; //防止结尾的时候再次触发错误
                     }
                     else if(action.isIgnore)
                     {

@@ -1,0 +1,133 @@
+#ifndef RV_ASPECTS_AH
+#define RV_ASPECTS_AH
+
+#include  <iostream>
+#include  <vector>
+
+#include    "../../modules/event/event_api.h"
+
+extern ManagerHandle mh;
+extern EventHandle eh;
+
+aspect StartStopEventManagerAspect
+{
+    virtual void add_solver() = 0;
+
+    StartStopEventManagerAspect(const char* name)
+    {
+        programName = name;
+    }
+
+    advice execution("% main(...)"):around()
+    {
+        mh = event_manager_start(programName.c_str());
+        add_solver();
+
+
+        eh = create_new_event();
+        event_set_event_name(eh, "f_main@begin");
+        publish_event(mh, eh);
+
+        tjp->proceed();
+
+        eh = create_new_event();
+        event_set_event_name(eh, "f_main@end");
+        publish_event(mh, eh);
+
+        event_manager_stop(mh);
+    }
+
+    string programName;
+};
+
+//抽象的Scope
+aspect BeginEndAspect
+{
+    pointcut virtual functions() = 0;
+
+    BeginEndAspect(const char *name)
+    {
+        functionName = name;
+    }
+
+    advice call(functions()):around()
+    {
+        eh = create_new_event();
+        string beginEvent = "f_" + functionName + "@begin";
+        event_set_event_name(eh, beginEvent.c_str());
+        publish_event(mh, eh);
+
+        cout << JoinPoint::argtype(0) << endl;
+        tjp->proceed();
+
+        eh = create_new_event();
+        string endEvent = "f_" + functionName + "@end";
+        event_set_event_name(eh, endEvent.c_str());
+        publish_event(mh, eh);
+    }
+
+    string functionName;
+};
+
+//抽象的事件
+aspect EventAspect
+{
+    EventAspect(const char *name)
+    {
+        functionName = name;
+    }
+
+    pointcut virtual functions() = 0;
+    pointcut exclude() = !within("int solution_%(...)");
+
+    string functionName;
+};
+
+/*
+ *处理pointcut的宏定义，需要添加排除部分
+ */
+#define CALL call(functions()) && exclude()
+#define EXECUTION execution(functions()) && exclude()
+
+/*
+ *添加解决方案的宏定义
+ */
+#define ADD_SOLVER(name) event_manager_add_solve_function(mh, #name, name)
+/*
+ *处理事件的宏定义
+ */
+#define SET_EVENT_F_NAME \
+        eh = create_new_event();\
+        string eventName = "f_" + functionName;\
+        event_set_event_name(eh, eventName.c_str());\
+        event_set_func_name(eh, eventName.c_str());
+
+#define SET_EVENT_V_NAME \
+        eh = create_new_event();\
+        string eventName = "v_" + functionName;\
+        event_set_event_name(eh, eventName.c_str());\
+        event_set_func_name(eh, eventName.c_str());
+
+#define ADD_EVENT_ARG(args...) \
+        event_add_func_arg(eh, args);
+
+#define PUBLISH_EVENT \
+        publish_event(mh, eh);
+
+/*
+ *处理参数的宏定义和aspectc++预定义的简化
+ */
+#define THIS_P tjp->that();
+#define TARGET_P tjp->target();
+#define RETURN_P tjp->result();
+
+#define ARG0_P tjp->arg(0)
+#define ARG1_P tjp->arg(1)
+#define ARG2_P tjp->arg(2)
+#define ARG3_P tjp->arg(3)
+#define ARG4_P tjp->arg(4)
+#define ARG5_P tjp->arg(5)
+
+#define DO_THIS_FUNCTION tjp->proceed();
+
+#endif

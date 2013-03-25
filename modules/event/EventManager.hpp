@@ -104,7 +104,7 @@ namespace rv_xjtu_yangyan
             /*
              *这里是离线端的诊断，也就是在不匹配任何路径后
              */
-            std::cout << "Sending An Event ..." << std::endl;
+            //std::cout << "Sending An Event ..." << std::endl;
             Sender sender;
             Result result;
             result = sender.write((*eventQueue_).front());

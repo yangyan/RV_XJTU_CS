@@ -78,7 +78,7 @@ namespace rv_xjtu_yangyan
                     boost::archive::text_iarchive ia(iss);
                     Result result;
                     ia >> result;
-                    /*打印*/result.print();
+                    //[>打印<]result.print();
                     return result;
                 }
                 catch(boost::system::system_error &e)
