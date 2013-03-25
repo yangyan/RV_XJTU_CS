@@ -38,13 +38,15 @@ EventHandle create_new_event()
 void event_set_func_name(EventHandle eh, const char *name)
 {
     Event *e = (Event *) eh;
-    e->setFunctionName(name);
+    char *s = strdup(name);
+    e->setFunctionName(s);
 }
 
 void event_set_event_name(EventHandle eh, const char *name)
 {
     Event *e = (Event *) eh;
-    e->setEventName(name);
+    char *s = strdup(name);
+    e->setEventName(s);
 }
 
 void event_add_func_arg(EventHandle eh, const char *format, ...)
