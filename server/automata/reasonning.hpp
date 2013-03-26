@@ -191,6 +191,7 @@ namespace rv_xjtu_yangyan
     or_collection *get_next(and_collection *ac)
     {
         or_collection *rv_oc = new or_collection();
+
         for(set<automata_leaf *, event_comparer>::iterator it = ac->events.begin();
                 it != ac->events.end(); it++)
         {
@@ -198,10 +199,34 @@ namespace rv_xjtu_yangyan
             {
                 or_collection *tmp_oc;
                 tmp_oc = get_or_collection((*it)->next_node);
-                for(set<and_collection *, and_comparer>::iterator sit = tmp_oc->ands.begin();
-                        sit != tmp_oc->ands.end(); sit++)
+
+                //对于rv_oc还为空的情况，那么直接插入
+                if(rv_oc->ands.size() == 0)
                 {
-                    rv_oc->ands.insert(*sit);
+                    for(set<and_collection *, and_comparer>::iterator sit = tmp_oc->ands.begin();
+                            sit != tmp_oc->ands.end(); sit++)
+                    {
+                        rv_oc->ands.insert(*sit);
+                    }
+                }
+                //否则，需要将两个or_collection进行and运算
+                else
+                {
+                    or_collection *orig_oc = rv_oc;
+                    rv_oc = new or_collection();
+                    for(set<and_collection *, and_comparer>::iterator sit1 = tmp_oc->ands.begin();
+                            sit1 != tmp_oc->ands.end(); sit1++)
+                        for(set<and_collection *, and_comparer>::iterator sit2 = orig_oc->ands.begin();
+                                sit2 != orig_oc->ands.end(); sit2++)
+                        {
+                            and_collection *tmp_and = new and_collection();
+
+                            vector<automata_leaf *> eventv;
+                            set_union((*sit1)->events.begin(), (*sit1)->events.end(),
+                                    (*sit2)->events.begin(), (*sit2)->events.end(), back_inserter(eventv));
+                            tmp_and->events = set<automata_leaf *, event_comparer>(eventv.begin(), eventv.end());
+                            rv_oc->ands.insert(tmp_and);
+                        }
                 }
             }
         }

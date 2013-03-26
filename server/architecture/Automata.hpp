@@ -361,7 +361,7 @@ namespace rv_xjtu_yangyan
                     isEnd = false;
                     if(ConcreteAutomataSize() != 0)//存在开启的自动机
                     {
-                        if(hasEmptyConcreteAutomata())//有事件关键参数为空
+                        if(hasEmptyConcreteAutomata())//所有事件关键参数为空
                         {
                             if(ConcreteAutomataSize() == 1)//必须只存在一个这个样的自动机
                             {
@@ -375,6 +375,9 @@ namespace rv_xjtu_yangyan
                                 if(ca.must_stop_now == true)//如果现在必须要停止推理机，那么需要从已有具体自动机中删除之
                                 {
                                     conAutos.erase(conAutos.begin());
+                                    //保证有一个存活的自动机
+                                    if(ConcreteAutomataSize() == 0)
+                                        newConcreteAutomata();
                                 }
                                 return;
                             }
@@ -395,12 +398,24 @@ namespace rv_xjtu_yangyan
 
                                 Solution s = is_satisfy(ca, isEnd);
                                 rslt.pushBackSolution(s);
+
+                                if(ca.must_stop_now == true)//如果现在必须要停止推理机，那么需要从已有具体自动机中删除之
+                                {
+                                    conAutos.pop_back();
+                                    //保证有一个存活的自动机
+                                    if(ConcreteAutomataSize() == 0)
+                                        newConcreteAutomata();
+                                }
                                 return; 
                             }
                             else  //有关键字符合的自动机
                             {
-                                BOOST_FOREACH(ConcreteAutomata &ca, conAutos)
+                                //BOOST_FOREACH(ConcreteAutomata &ca, conAutos)
+                                for(vector<ConcreteAutomata>::iterator it = conAutos.begin();
+                                        it != conAutos.end();)
                                 {
+                                    ConcreteAutomata &ca = *it;
+
                                     if(ca.isKeySatisfied(newEvent) && ca.isNonKeySatisfied(newEvent))//关键和非关键参数都符合
                                     {
                                         ca.fillVars(newEvent);
@@ -408,12 +423,24 @@ namespace rv_xjtu_yangyan
 
                                         Solution s = is_satisfy(ca, isEnd);
                                         rslt.pushBackSolution(s);
+
+                                        if(ca.must_stop_now == true)//如果现在必须要停止推理机，那么需要从已有具体自动机中删除之
+                                        {
+                                            conAutos.erase(it);
+                                        }
+                                        else
+                                        {
+                                            it++;
+                                        }
                                     }
                                     else                                //非关键参数不符合
                                     {
                                         //什么都不做
                                     }
                                 }
+                                //保证有一个存活的自动机
+                                if(ConcreteAutomataSize() == 0)
+                                    newConcreteAutomata();
                                 return;
                             }
 

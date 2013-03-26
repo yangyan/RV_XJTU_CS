@@ -19,6 +19,7 @@ int main(int argc, char *argv[])
     a.push_back(3);
     b.push_back(5);
 
+    a.begin();
     for_each(a.begin(), b.end(), add);
 
     cout << total << endl;
