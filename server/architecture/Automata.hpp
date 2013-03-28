@@ -19,6 +19,11 @@
 #include    "InterestEvents.hpp"
 #include    "Action.hpp"
 
+#ifdef EXP_OVERHEAD //测试开销
+#define BOOST_CHRONO_HEADER_ONLY
+#include  <boost/chrono/include.hpp>
+#endif
+
 namespace rv_xjtu_yangyan
 {
     class Automata /*{{{*/
@@ -482,6 +487,7 @@ namespace rv_xjtu_yangyan
                 {
                     cout << " " << e;
                 }
+                cout << "\n" << endl;
 
                 //如果是结尾事件，那么可以提前结束了
                 if(isEnd == true && ca.terminalResult == false)
@@ -512,9 +518,36 @@ namespace rv_xjtu_yangyan
                 //下面是正片
                 vector<string> nowEvents;
                 or_collection *old_oc = oc;
-                oc = or_satisfy_events(oc, events, ca.reasonResult, ca.terminalResult);
 
+#ifdef EXP_OVERHEAD
+                std::time_t start(0);
+                boost::chrono::nanoseconds nano = boost::chrono::system_clock::now()
+                    - boost::chrono::system_clock::from_time_t(start);
+                long long start_time = nano.count();
+#endif
+
+#ifdef EXP_OVERHEAD
+                long long total_leave = 0;
+                BOOST_FOREACH(and_collection *ac, oc->ands)
+                {
+                    total_leave += ac->events.size();
+                }
+                cout << "总结点数:" << total_leave << endl;
+#endif
+
+                oc = or_satisfy_events(oc, events, ca.reasonResult, ca.terminalResult);
                 cout << "\n";
+
+#ifdef EXP_OVERHEAD
+                nano = boost::chrono::system_clock::now()
+                    - boost::chrono::system_clock::from_time_t(start);
+                long long end_time = nano.count();
+
+                long long reason_time = end_time - start_time;
+
+                cout << "推理时间:" << reason_time << " ns" << endl;
+#endif
+
                 cout << "下一步集合为：";
                 or_collection_printer(oc);
 
