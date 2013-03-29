@@ -1,0 +1,103 @@
+#ifndef MAIN_HPP
+#define MAIN_HPP
+
+#include    "rv_aspects.ah"
+
+#include    "rv_flags.h"
+
+using namespace std;
+
+//这里添加对解决函数的声明
+extern int solution_check_fbe(vector<string> &);
+
+//这里对程序的名称进行设定，并添加解决方案
+aspect MyStartStopEventManager:public StartStopEventManagerAspect
+{
+    MyStartStopEventManager():
+        StartStopEventManagerAspect("fbe") {}
+
+    void add_solver()
+    {
+        ADD_SOLVER(solution_check_fbe);
+    }
+};
+
+//这里添加作用域事件
+
+//以下添加函数事件
+aspect FOR_EACH:public EventAspect
+{
+    pointcut functions() = "% std::for_each(...)";
+
+    FOR_EACH():
+        EventAspect("for_each") { }
+
+    advice CALL:around()
+    {
+        void **first = (void **)ARG0_P;
+        void **second = (void **)ARG1_P;
+        //cout << "for_each..." << "(1)" << *first;
+        //cout << "(2)" << *second << endl;
+
+        SET_EVENT_F_NAME;
+        ADD_EVENT_ARG("%d", *first);
+        ADD_EVENT_ARG("%d", *second);
+        PUBLISH_EVENT;
+
+        if(fbe_error == false)
+        {
+            DO_THIS_FUNCTION;
+        }
+        else
+        {
+            cerr << "在for_each中使用了不同的container!!!" << endl;
+            fbe_error = false;
+        }
+    }
+};
+
+aspect VECTOR_BEGIN:public EventAspect
+{
+    pointcut functions() = "% std::vector<...>::begin()";
+
+    VECTOR_BEGIN():
+        EventAspect("vector_begin") { }
+
+    advice CALL:after()
+    {
+        void *self = (void *)TARGET_P;
+        void **rt = (void **)RETURN_P;
+        //cout << "vector_begin..." << "(t)" << self;
+        //cout << "(r)" << *rt << endl;
+
+        SET_EVENT_F_NAME;
+        ADD_EVENT_ARG("%d", self);
+        ADD_EVENT_ARG("%d", *rt);
+        PUBLISH_EVENT;
+    }
+};
+
+aspect VECTOR_END:public EventAspect
+{
+    pointcut functions() = "% std::vector<...>::end()";
+
+    VECTOR_END():
+        EventAspect("vector_end") { }
+
+    advice CALL:after()
+    {
+        void *self = (void *)TARGET_P;
+        void **rt = (void **)RETURN_P;
+        //cout << "vector_end..." << "(t)" << self;
+        //cout << "(r)" << *rt << endl;
+
+        SET_EVENT_F_NAME;
+        ADD_EVENT_ARG("%d", self);
+        ADD_EVENT_ARG("%d", *rt);
+        PUBLISH_EVENT;
+    }
+};
+
+//最后添加其他事件
+
+#endif

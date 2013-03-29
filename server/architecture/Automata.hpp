@@ -155,7 +155,8 @@ namespace rv_xjtu_yangyan
                             {
                                 if(nvpair.find((*it).first) != nvpair.end())//并且事件中也有该项
                                 {
-                                    if((*it).second != nvpair[(*it).first]) //如果两个值不相同，则不对
+                                    string value = nvpair[(*it).first];
+                                    if((*it).second != value) //如果两个值不相同，则不对
                                         return false;
                                 }
                             }
@@ -440,6 +441,7 @@ namespace rv_xjtu_yangyan
                                     }
                                     else                                //非关键参数不符合
                                     {
+                                        it++;
                                         //什么都不做
                                     }
                                 }
@@ -454,6 +456,7 @@ namespace rv_xjtu_yangyan
                     else
                     {
                         //不存在开启的具体自动机
+                        cout << "不存在开启的具体自动机" << endl;
                         return;
                     }
                 }/*}}}*/

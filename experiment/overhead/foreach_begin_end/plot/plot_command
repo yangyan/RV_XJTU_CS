@@ -1,0 +1,21 @@
+set terminal postscript eps
+set output "pic.eps"
+
+set title "6 operators"
+
+set xlabel "path length"
+set ylabel "total nodes"
+set y2label "total time(ms)"
+
+set xrange [1:500]
+
+set ytics nomirror
+set y2tics 
+
+plot "plot.dat" u 1:2 w lp lc 2 pt 0 ps 2 lw 2 axis x1y1 title "nodes",\
+	 "plot.dat" u 1:3 w lp lc 3 pt 7 ps 0 lw 2  axis x1y2 title "time"
+
+
+set output
+set term wxt
+
