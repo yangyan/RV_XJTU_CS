@@ -1,0 +1,24 @@
+set terminal postscript eps enhanced
+set output "nodes.eps"
+
+set title "expanded nodes"
+
+set xlabel "path length"
+set ylabel "total nodes"
+
+set xrange [1:1000]
+set xtics 200
+
+set key center at 500,37000
+
+set grid
+
+plot "nodes" u 1:2 w lines lc 0 lw 1 title "{/Symbol j}_1",\
+	     "nodes" u 1:3 w lines lc 0 lw 1  title "{/Symbol j}_2",\
+	     "nodes" u 1:4 w lines lc 0 lw 1 title "{/Symbol j}_3"
+	
+
+
+set output
+set term wxt
+
