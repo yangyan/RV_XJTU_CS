@@ -199,7 +199,6 @@ namespace rv_xjtu_yangyan
                     if(newEvent.eventName == cs.beginEvent)
                     {
                         scopeSequence.push_back(cs);
-                        break;//我觉得只需要一次就够了，不能在作用域中push多次
                     }
                 }
                 getSolutionAll(result, newEvent);
